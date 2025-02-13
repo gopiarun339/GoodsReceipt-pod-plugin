@@ -1,0 +1,99 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+    <Dialog id="postingsDialog" title="{i18n-goodreceipt>VIEW_POSTINGS_HEADER}" class="sapUiContentPadding"
+        contentWidth="90%" resizable="true" draggable="true">
+        <content>
+            <Table id="postingsTable" width="100%" growing="true" growingThreshold="20" growingScrollToLoad="true"
+                updateStarted=".GRPostController.queryNextPageList" autoPopinMode="true"
+                items="{ path: 'postingsModel>/details' }">
+                <columns>
+                    <Column mergeDuplicates="true" width="8em" demandPopin="true">
+                        <header>
+                            <Text text="{i18n-goodreceipt>MATNUM_COLUMN.LABEL}" />
+                        </header>
+                    </Column>
+                    <Column width="8em" demandPopin="true">
+                        <header>
+                            <Text text="{i18n-goodreceipt>QUANTITY_COLUMN.LABEL}" />
+                        </header>
+                    </Column>
+                    <Column width="8em" demandPopin="true">
+                        <header>
+                            <Text text="{i18n-goodreceipt>BATCH_ID_COLUMN.LABEL}" />
+                        </header>
+                    </Column>
+                    <Column width="7em" demandPopin="true">
+                        <header>
+                            <Text text="{i18n-goodreceipt>STORAGE_LOCATION_COLUMN.LABEL}" />
+                        </header>
+                    </Column>
+                    <Column width="12em" demandPopin="true">
+                        <header>
+                            <Text text="{i18n-goodreceipt>POSTED_BY_COLUMN.LABEL}" />
+                        </header>
+                    </Column>
+                    <Column width="5em" demandPopin="true">
+                        <header>
+                            <Text text="{i18n-goodreceipt>STATUS_COLUMN.LABEL}" />
+                        </header>
+                    </Column>
+                    <Column width="12em" demandPopin="true" hAlign="End">
+                        <header>
+                            <Text text="{i18n-goodreceipt>POSTING_DATE_TIME_COLUMN.LABEL}" />
+                        </header>
+                    </Column>
+                    <Column width="8em" demandPopin="true" hAlign="End">
+                        <header>
+                            <Text text="{i18n-goodreceipt>CREATION_DATE_COLUMN.LABEL}" />
+                        </header>
+                    </Column>
+                    <Column width="9em" demandPopin="true">
+                        <header>
+                            <Text text="{i18n-goodreceipt>COMMENTS_COLUMN_LABEL}" />
+                        </header>
+                    </Column>
+                    <Column demandPopin="true" hAlign="Center" width="3em"
+                        visible="{=!${postingsModel>/dontShowPrint}}">
+                        <header>
+                            <Text text="{i18n-goodreceipt>PRINT_BTN_COLUMN.LABEL}" />
+                        </header>
+                    </Column>
+                </columns>
+                <ColumnListItem id="postingsTableListItem">
+                    <cells>
+                        <Text text="{postingsModel>/material}" />
+                        <VBox width="100%" direction="Column">
+                            <items>
+                                <HBox>
+                                    <items>
+                                        <Text
+                                            text="{parts : ['postingsModel>quantity/value','postingsModel>quantity/unitOfMeasure/uom'],formatter:'.GRPostController.concatenateQuantityAndUnitOfMeasure'}"
+                                            textAlign="Right" />
+                                        <core:Icon class="sapUiTinyMarginBegin" src="sap-icon://simulate"
+                                            visible="{=!!${postingsModel>calculatedData}}"
+                                            press=".GRPostController.onFormulaCalculateIconPress"
+                                            tooltip="{i18n>postingDialog.calculatedData.tooltip}" />
+                                    </items>
+                                </HBox>
+                            </items>
+                        </VBox>
+                        <Text text="{postingsModel>batchNumber}" />
+                        <Text text="{postingsModel>storageLocation}" />
+                        <Text text="{postingsModel>userId}" />
+                        <Text
+                            text="{path: 'postingsModel>cancellationStatus', formatter: '.GRPostController.formatCancellationStatus'}" />
+                        <Text
+                            text="{parts: [{path: 'postingsModel>dateTime', type: 'sap.ui.model.odata.type.String'}], formatter: '.GRPostController.oDateTimeUtils.dmcDateTimeFormatterFromUTC'}" />
+                        <Text
+                            text="{parts: [{path: 'postingsModel>createdDateTime', type: 'sap.ui.model.odata.type.String'}], formatter: '.GRPostController.oDateTimeUtils.dmcDateFormatterFromUTC'}" />
+                        <Text text="{postingsModel>comments}" />
+                        <Button icon="sap-icon://print" tooltip="{i18n-goodreceipt>PRINT_BTN_COLUMN.LABEL}"
+                            press=".GRPostController.onPrintBtnPressed" />
+                    </cells>
+                </ColumnListItem>
+            </Table>
+        </content>
+        <beginButton>
+            <Button id="closeButton" text="{i18n-goodreceipt>close}" press=".GRPostController.onClosePostingsDialog" />
+        </beginButton>
+    </Dialog>
+</core:FragmentDefinition>
