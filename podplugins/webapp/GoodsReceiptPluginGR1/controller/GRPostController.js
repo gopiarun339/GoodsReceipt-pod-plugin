@@ -825,6 +825,7 @@ sap.ui.define(
       },
 
       _postHandlingUnitGoodsReceipt: function(aItems) {
+        //CP_HandlingUnitQuantityGrPost
         var sUrl =
           this.oController.getPublicApiRestDataSourceUri() +
           '/pe/api/v1/process/processDefinitions/start?key=REG_4dcfb49c-cebb-41a0-ac23-da6d837f5cf0&async=false';
@@ -835,6 +836,7 @@ sap.ui.define(
       },
 
       _getHandlingUnitDataFromS4: function(sHuNo) {
+        //CPP_GetPackingDataFromS4
         var sUrl =
           this.oController.getPublicApiRestDataSourceUri() +
           '/pe/api/v1/process/processDefinitions/start?key=REG_57bd9fbd-5f78-4ac0-ba6b-7577d0bf7a57&async=false';
