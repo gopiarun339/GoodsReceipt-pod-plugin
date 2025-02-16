@@ -754,15 +754,16 @@ sap.ui.define(
           ._getHandlingUnitDataFromS4(sText.handlingUnit)
           .then(oResponse => {
             if (!oResponse || !oResponse.content || oResponse.content.length === 0) {
-              return null;
+              return [];
             }
-            return oResponse.content.filter(oItem => {
-              //GR posted for HU already
-              if (oItem.grindicator === 'X') return false;
-              //Material in HU is not valid
-              if (oItem.material !== postModelData.material) return false;
-              return true;
-            });
+            return oResponse.content || [];
+            // .filter(oItem => {
+            //   //GR posted for HU already
+            //   if (oItem.grindicator === 'X') return false;
+            //   //Material in HU is not valid
+            //   if (oItem.material !== postModelData.material) return false;
+            //   return true;
+            // });
           })
           .finally(() => {
             this.getView().byId('postDialog').setBusy(false);
@@ -770,6 +771,25 @@ sap.ui.define(
 
         if (aHuItems.length < 1) {
           this.getView().byId('quantity').setValue(Number(this.getView().getModel('scanModel').getProperty('/scanQty')));
+          MessageBox.error('Handling unit is empty', {
+            onClose: () => {
+              setTimeout(() => {
+                this.byId('quantity').focus();
+              }, 1000);
+            }
+          });
+          return;
+        }
+
+        if (aHuItems[0].grindicator === 'X') {
+          this.getView().byId('quantity').setValue(Number(this.getView().getModel('scanModel').getProperty('/scanQty')));
+          MessageBox.error('GR already done for scanned HU', {
+            onClose: () => {
+              setTimeout(() => {
+                this.byId('quantity').focus();
+              }, 1000);
+            }
+          });
           return;
         }
 
@@ -822,6 +842,10 @@ sap.ui.define(
         this.getView().getModel('postModel').setData(postModelData);
         this.getView().byId('quantity').setValue(Number(scanData.scanQty));
         this.getView().getModel('scanModel').setData(scanData);
+
+        setTimeout(() => {
+          this.getView().byId('quantity').focus();
+        }, 1000);
       },
 
       _postHandlingUnitGoodsReceipt: function(aItems) {
@@ -1644,24 +1668,34 @@ sap.ui.define(
         scanModelData.HUComponent = aComponents.join(',');
 
         let deletedObj = scanModelData.scanData.find(oItem => {
-          return oItem.handlingUnit === deletedComponent;
+          //   return oItem.handlingUnit === deletedComponent;
+          return oItem.huno === deletedComponent;
         });
 
         for (var i in scanModelData.scanData) {
-          if (scanModelData.scanData[i].handlingUnit === deletedObj.handlingUnit) {
+          //   if (scanModelData.scanData[i].handlingUnit === deletedObj.handlingUnit) {
+          if (scanModelData.scanData[i].huno === deletedObj.huno) {
             scanModelData.scanData.splice(i, 1);
             break;
           }
         }
 
         if (deletedObj) {
-          postModelData.quantity.value = Number(scanModelData.scanQty) - Number(deletedObj.quantity);
+          //   postModelData.quantity.value = Number(scanModelData.scanQty) - Number(deletedObj.quantity);
+          postModelData.quantity.value = Number(scanModelData.scanQty) - Number(deletedObj.packedQty);
           this.getView().getModel('postModel').setData(postModelData);
           this.getView().getModel('scanModel').setProperty('/scanCount', --scanModelData.scanCount);
           this.getView().getModel('scanModel').setProperty('/scanQty', postModelData.quantity.value);
           this.getView().getModel('scanModel').setProperty('/HUComponent', scanModelData.HUComponent);
           this.getView().getModel('postModel').refresh();
         }
+
+        var oTimeout = setTimeout(() => {
+          this.byId('quantity').focus();
+          this.GRPostController.handleValideQuantity();
+          clearTimeout(oTimeout);
+          console.log('Ran timeout for focus');
+        }, 1000);
       },
 
       /**

@@ -1,0 +1,13 @@
+{
+  "name": "goodsreceipt-pod-plugin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "mbt build && cf deploy ./mta_archives/arunViewPluginsMTA_0.0.1.mtar",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
