@@ -320,7 +320,7 @@ sap.ui.define(
         }
 
         setTimeout(() => {
-          this.oController.byId('quantity').focus();
+          this.oController.byId('idHandlingUnitScanInput').focus();
         }, 1000);
       },
 
@@ -726,6 +726,16 @@ sap.ui.define(
           that.handleValideQuantity();
           clearTimeout(oSetTimeOut);
         }, 500);
+      },
+
+      handleHUScanChange: async function(oEvent) {
+        // Handling Qty check for validation
+        let that = this.GRPostController || this;
+
+        let oSetTimeOut = setTimeout(function() {
+          that.handleValideQuantity();
+          clearTimeout(oSetTimeOut);
+        }, 500);
 
         try {
           //   var sText = JSON.parse(oEvent.getSource().getValue().split('[')[1].split(']')[0]);
@@ -734,11 +744,15 @@ sap.ui.define(
           let arr = sInputValue.match(curlyBracesInclusive);
           var sText = JSON.parse(arr[0]);
         } catch (e) {
+          oEvent.getSource().setValue('');
           if (oEvent.getSource().getValue() !== '') {
             this.getView().byId('quantity').setValue(Number(this.getView().getModel('scanModel').getProperty('/scanQty')));
           }
           return;
         }
+
+        //Clear the scan field
+        oEvent.getSource().setValue('');
 
         if (!isNaN(Number(sText))) {
           this.getView().byId('quantity').setValue(Number(this.getView().getModel('scanModel').getProperty('/scanQty')));
@@ -757,13 +771,6 @@ sap.ui.define(
               return [];
             }
             return oResponse.content || [];
-            // .filter(oItem => {
-            //   //GR posted for HU already
-            //   if (oItem.grindicator === 'X') return false;
-            //   //Material in HU is not valid
-            //   if (oItem.material !== postModelData.material) return false;
-            //   return true;
-            // });
           })
           .finally(() => {
             this.getView().byId('postDialog').setBusy(false);
@@ -774,7 +781,7 @@ sap.ui.define(
           MessageBox.error('Handling unit is empty', {
             onClose: () => {
               setTimeout(() => {
-                this.byId('quantity').focus();
+                this.byId('idHandlingUnitScanInput').focus();
               }, 1000);
             }
           });
@@ -786,7 +793,7 @@ sap.ui.define(
           MessageBox.error('GR already done for scanned HU', {
             onClose: () => {
               setTimeout(() => {
-                this.byId('quantity').focus();
+                this.byId('idHandlingUnitScanInput').focus();
               }, 1000);
             }
           });
@@ -794,28 +801,6 @@ sap.ui.define(
         }
 
         sText = aHuItems[0];
-
-        // '{"shopOrder":"110000000559","batchId":"M2061232","material":"000001200000004005","materialVersion":"A","batchNumber":"0000019196","storageLocation":"F001","workCenter":"","quantityToleranceCheck":true,"quantity":{"value":"","unitOfMeasure":{"uom":"KG","shortText":"","longText":""}},"receivedQuantity":{"value":0,"unitOfMeasure":{"uom":"KG","shortText":"","longText":""}},"targetQuantity":{"value":10,"unitOfMeasure":{"uom":"KG","shortText":"","longText":""}},"isFinalConfirmation":"","userId":"gopi.arun@stellium.com","dateTime":"Feb 07,2025, 09:38:15 am","comments":"","handlingUnitNumber":null,"batchManaged":true,"isEwmManagedStorageLocation":false,"formula":null,"bomRef":null,"recalculationEnabled":false}'
-
-        //New label will not have this data
-        // if (!sText.Material){
-        //     MessageToast.show("Material number not found");
-        //     this.getView().byId("quantity").setValue(Number(this.getView().getModel("scanModel").getProperty("/scanQty")));
-        //     return;
-        // }
-
-        // if (sText.Material !== postModelData.material) {
-        //     MessageToast.show("Material Number does not match.");
-        //     this.getView().byId("quantity").setValue(Number(this.getView().getModel("scanModel").getProperty("/scanQty")));
-        //     return;
-        // }
-        // if (postModelData.batchNumber && sText.batch) {
-        //     if (sText.batch !== postModelData.batchNumber) {
-        //         MessageToast.show("Batch Number does not match.");
-        //         this.getView().byId("quantity").setValue(Number(this.getView().getModel("scanModel").getProperty("/scanQty")));
-        //     return;
-        //     }
-        // }
 
         let duplicateScan = scanData.HUComponent.split(',').find(sItem => {
           //   return sItem === sText.handlingUnit;
@@ -844,7 +829,7 @@ sap.ui.define(
         this.getView().getModel('scanModel').setData(scanData);
 
         setTimeout(() => {
-          this.getView().byId('quantity').focus();
+          this.getView().byId('idHandlingUnitScanInput').focus();
         }, 1000);
       },
 
@@ -1691,7 +1676,7 @@ sap.ui.define(
         }
 
         var oTimeout = setTimeout(() => {
-          this.byId('quantity').focus();
+          this.byId('idHandlingUnitScanInput').focus();
           this.GRPostController.handleValideQuantity();
           clearTimeout(oTimeout);
           console.log('Ran timeout for focus');

@@ -5,8 +5,28 @@
                 <core:InvisibleText id="formTitle" text="{i18n-goodreceipt>GOODS_RECEIPT_FORM}"/>
                 <Label text="{i18n-goodreceipt>MATERIAL_NUMBER_COLUMN.LABEL}" labelFor="materialNum"/>
                 <Input id="materialNum" enabled="false" value="{postModel>/material}"/>
+
+                <!-- Handling unit scan begin   -->
+                <Label text="{i18n>handlingUnitScanLabel}"/>
+                <Input id="idHandlingUnitScanInput"
+                    change=".GRPostController.handleHUScanChange"
+                    value="{weighingModel>/scannedHu}"
+                    required="false"
+                    class="fontWhite">
+                    <layoutData>
+                        <f:ColumnElementData cellsSmall="10" cellsLarge="6" />
+                    </layoutData>
+                </Input>
+                <!-- Handling unit scan end     -->
+
                 <Label id="qtyUomLabel" text="{i18n-goodreceipt>QUANTITY_UNIT_COLUMN.LABEL}" required="true"/>
-                <Input id="quantity" ariaLabelledBy="qtyLabelDesc" ariaDescribedBy="qtyLabelDesc" change=".GRPostController.onQuantityChange" value="{path:'postModel>/quantity/value'}"/>
+                <Input id="quantity" 
+                    ariaLabelledBy="qtyLabelDesc" 
+                    ariaDescribedBy="qtyLabelDesc" 
+                    editable="{= ${scanModel>/HUComponent}.length === 0 }"
+                    change=".GRPostController.onQuantityChange" 
+                    value="{path:'postModel>/quantity/value'}"/>
+
                 <!-- <Input id="quantity" ariaLabelledBy="qtyLabelDesc" ariaDescribedBy="qtyLabelDesc" liveChange=".GRPostController.onQuantityLiveChange" change=".GRPostController.onQuantityChange" value="{path:'postModel>/quantity/value'}"/> -->
                 <Select id="uom" ariaLabelledBy="qtyUomLabel" items="{unitModel>/}" selectedKey="{postModel>/quantity/unitOfMeasure/uom}" enabled="true">
                     <layoutData>
