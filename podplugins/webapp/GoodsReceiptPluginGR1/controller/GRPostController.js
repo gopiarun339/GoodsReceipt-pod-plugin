@@ -800,6 +800,18 @@ sap.ui.define(
           return;
         }
 
+        if (aHuItems[0].orderNo !== this.selectedOrderData.order || aHuItems[0].sfc !== this.selectedOrderData.sfc) {
+          this.getView().byId('quantity').setValue(Number(this.getView().getModel('scanModel').getProperty('/scanQty')));
+          MessageBox.error('Scanned HU does not belong to current SFC', {
+            onClose: () => {
+              setTimeout(() => {
+                this.byId('idHandlingUnitScanInput').focus();
+              }, 1000);
+            }
+          });
+          return;
+        }
+
         sText = aHuItems[0];
 
         let duplicateScan = scanData.HUComponent.split(',').find(sItem => {
