@@ -298,6 +298,7 @@ sap.ui.define(
         oPostModel.setProperty('/userId', loggedInUser);
         oPostModel.setProperty('/workCenter', this.selectedOrderData.workcenter);
         oPostModel.setProperty('/batchManaged', isBatchManaged);
+        oPostModel.setProperty('/componentType', oData.type);
         oPostModel.setProperty(sIsEwmManagedStorageLocationProperty, isEwmManagedStorageLocation);
         oPostModel.setProperty(sHandlingUnitNumberProperty, null); // if isEwmManagedStorageLocation is true, then show handlingUnitNumber field
 
@@ -662,6 +663,13 @@ sap.ui.define(
           return oScannedItem;
         });
         grController._postHandlingUnitGoodsReceipt(aItems);
+
+        var sScannedHus = oScanModel.getProperty('/HUComponent');
+        if (grController.postData.componentType === 'N') {
+          grController._printFinalHeaderLabel(sScannedHus, grController.postData.shopOrder);
+        } else {
+          grController._printFinalByProductLabel(sScannedHus, grController.postData.shopOrder, grController.postData.workCenter);
+        }
       },
 
       _buildCustomFieldData: function() {
@@ -1722,6 +1730,47 @@ sap.ui.define(
         if (mainController.byId('postingsDialog')) {
           mainController.byId('postingsDialog').destroy();
         }
+      },
+
+      _printFinalHeaderLabel: function(sHandlingUnit, sOrder) {
+        //GR_LABEL_FINAL_HEADER
+        var sUrl =
+          this.oController.getPublicApiRestDataSourceUri() +
+          '/pe/api/v1/process/processDefinitions/start?key=REG_c8e7223f-aea8-47e1-99c9-f72bd23ded44';
+        var oPayload = {
+          plant: this.oController.getPodController().getUserPlant(),
+          handlingUnit: sHandlingUnit,
+          order: sOrder
+        };
+        this.oController.ajaxPostRequest(
+          sUrl,
+          oPayload,
+          function(oResponse) {
+            console.log('Label print triggered');
+          },
+          function(oError) {}
+        );
+      },
+
+      _printFinalByProductLabel: function(sHandlingUnit, sOrder, sWorkcenter) {
+        //GR_LABEL_BYPRODUCT_FINAL
+        var sUrl =
+          this.oController.getPublicApiRestDataSourceUri() +
+          '/pe/api/v1/process/processDefinitions/start?key=REG_e5d5273b-a2fb-4c16-a92d-709fd3f85f7e';
+        var oPayload = {
+          plant: this.oController.getPodController().getUserPlant(),
+          handlingUnit: sHandlingUnit,
+          order: sOrder,
+          inwc: sWorkcenter
+        };
+        this.oController.ajaxPostRequest(
+          sUrl,
+          oPayload,
+          function(oResponse) {
+            console.log('Label print triggered');
+          },
+          function(oError) {}
+        );
       }
     };
   }
