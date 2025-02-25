@@ -666,7 +666,7 @@ sap.ui.define(
 
         var sScannedHus = oScanModel.getProperty('/HUComponent');
         if (grController.postData.componentType === 'N') {
-          grController._printFinalHeaderLabel(sScannedHus, grController.postData.shopOrder);
+          grController._printFinalHeaderLabel(sScannedHus, grController.postData.shopOrder, grController.postData.batchId);
         } else {
           grController._printFinalByProductLabel(sScannedHus, grController.postData.shopOrder, grController.postData.workCenter);
         }
@@ -739,11 +739,6 @@ sap.ui.define(
       handleHUScanChange: async function(oEvent) {
         // Handling Qty check for validation
         let that = this.GRPostController || this;
-
-        let oSetTimeOut = setTimeout(function() {
-          that.handleValideQuantity();
-          clearTimeout(oSetTimeOut);
-        }, 500);
 
         try {
           //   var sText = JSON.parse(oEvent.getSource().getValue().split('[')[1].split(']')[0]);
@@ -847,6 +842,11 @@ sap.ui.define(
         this.getView().getModel('postModel').setData(postModelData);
         this.getView().byId('quantity').setValue(Number(scanData.scanQty));
         this.getView().getModel('scanModel').setData(scanData);
+
+        let oSetTimeOut = setTimeout(function() {
+          that.handleValideQuantity();
+          clearTimeout(oSetTimeOut);
+        }, 500);
 
         setTimeout(() => {
           this.getView().byId('idHandlingUnitScanInput').focus();
@@ -1732,7 +1732,7 @@ sap.ui.define(
         }
       },
 
-      _printFinalHeaderLabel: function(sHandlingUnit, sOrder) {
+      _printFinalHeaderLabel: function(sHandlingUnit, sOrder, sSfc) {
         //GR_LABEL_FINAL_HEADER
         var sUrl =
           this.oController.getPublicApiRestDataSourceUri() +
@@ -1740,7 +1740,8 @@ sap.ui.define(
         var oPayload = {
           plant: this.oController.getPodController().getUserPlant(),
           handlingUnit: sHandlingUnit,
-          order: sOrder
+          order: sOrder,
+          sfc: sSfc
         };
         this.oController.ajaxPostRequest(
           sUrl,
