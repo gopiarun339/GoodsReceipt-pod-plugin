@@ -975,7 +975,8 @@ sap.ui.define(
         var oParameters = {};
         oParameters.shopOrder = this.selectedOrderData.order;
         oParameters.batchId = this.selectedOrderData.sfc;
-        oParameters.phase = phase.recipeOperation.operationActivity.operationActivity;
+        // oParameters.phase = phase.recipeOperation.operationActivity.operationActivity;
+        oParameters.phase = phase.recipeOperation.operation.operation;
 
         this.oParameters = oParameters;
         var sUrl = productionUrl + 'quantityConfirmation/summary';
@@ -998,15 +999,17 @@ sap.ui.define(
             if (sValue > totalyeild) {
               oQuantityInpuCtrl.setValueState('Error');
               var sMessage = that.oController.getI18nText('grQuantityGreaterThanYieldErrMsg', [
-                oResponseData.totalYieldQuantity.value,
+                // oResponseData.totalYieldQuantity.value,
+                totalyeild,
                 oResponseData.totalYieldQuantity.unitOfMeasure.uom
               ]);
               oQuantityInpuCtrl.setValueStateText(sMessage);
               that.oController.byId('grConfirmBtn').setEnabled(false);
-              return;
+              return false;
             }
 
             oQuantityInpuCtrl.setValueState('None');
+            return true;
           },
           function(oError, oHttpErrorMessage) {
             var err = oError ? oError : oHttpErrorMessage;
@@ -1015,36 +1018,53 @@ sap.ui.define(
         );
       },
 
-      handleValideQuantity: function() {
+      handleValideQuantity: async function() {
         let grController = this.GRPostController || this; // if this is controller.js, get GRPostController, else . return this;
         let oPostModel = grController.oController.getView().getModel('postModel');
         let oQuantityInpuCtrl = grController.oController.byId('quantity');
-        let bValidate = oQuantityInpuCtrl.getValueState() !== 'Error';
+
         let sValue = oQuantityInpuCtrl.getValue();
         let yieldQuantity = oPostModel.oData.targetQuantity.value;
         var that = this;
         //var oReportButton = this.byId('Report');
-        var sRecipeType = 'SHOP_ORDER';
-        var sUrl = this.oController.getPublicApiRestDataSourceUri() + '/recipe/v1/recipes';
-        var oParamters = {
-          plant: this.oController.getPodController().getUserPlant(),
-          recipe: this.selectedOrderData.order,
-          recipeType: sRecipeType
-        };
-        this.oController.ajaxGetRequest(
-          sUrl,
-          oParamters,
-          function(oResponseData) {
-            var oData = oResponseData;
-            var data = oResponseData[0].phases;
-            var lastPhase = data[data.length - 1];
-            that.quantityConfirmation(lastPhase);
-          },
-          function(oError, sHttpErrorMessage) {
-            console.error('Error fetching data:', error);
-            //that.handleErrorMessage(oError, sHttpErrorMessage);
-          }
-        );
+        // var sRecipeType = 'SHOP_ORDER';
+        // var sUrl = this.oController.getPublicApiRestDataSourceUri() + '/recipe/v1/recipes';
+        // var oParamters = {
+        //   plant: this.oController.getPodController().getUserPlant(),
+        //   recipe: this.selectedOrderData.order,
+        //   recipeType: sRecipeType
+        // };
+        // this.oController.ajaxGetRequest(
+        //   sUrl,
+        //   oParamters,
+        //   function(oResponseData) {
+        //     var oData = oResponseData;
+        //     var data = oResponseData[0].phases;
+        //     var lastPhase = data[data.length - 1];
+        //     that.quantityConfirmation(lastPhase);
+        //   },
+        //   function(oError, sHttpErrorMessage) {
+        //     console.error('Error fetching data:', error);
+        //     //that.handleErrorMessage(oError, sHttpErrorMessage);
+        //   }
+        // );
+
+        var oPodSelectionModel = that.oController.getPodSelectionModel(),
+          aOperations = oPodSelectionModel.getOperations(),
+          aRecipe = [],
+          oLastPhase;
+
+        if (aOperations && aOperations.length > 0) {
+          aRecipe = aOperations[0].recipeArray;
+        }
+
+        if (aRecipe && aRecipe.length > 0) {
+          oLastPhase = aRecipe.find(oItem => oItem.isLastReportingStep);
+          await that.quantityConfirmation(oLastPhase);
+          await that._timeoutPromise(500);
+        }
+
+        let bValidate = oQuantityInpuCtrl.getValueState() !== 'Error';
 
         if (!bValidate) {
           grController.isQuantityValid = false;
@@ -1772,6 +1792,15 @@ sap.ui.define(
           },
           function(oError) {}
         );
+      },
+
+      _timeoutPromise: function(iMilliseconds = 1000) {
+        return new Promise(resolve => {
+          var oTimeout = setTimeout(function() {
+            clearTimeout(oTimeout);
+            resolve();
+          }, iMilliseconds);
+        });
       }
     };
   }
