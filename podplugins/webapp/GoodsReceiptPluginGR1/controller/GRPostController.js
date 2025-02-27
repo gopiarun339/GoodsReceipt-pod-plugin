@@ -18,7 +18,7 @@ sap.ui.define(
     'sap/dm/dme/controller/FormulaCalculateDialog.controller',
     'sap/dm/dme/controller/FormulaCalculatedInfo.controller'
   ],
-  function(
+  function (
     JSONModel,
     StorageLocationBrowse,
     NumberFormatter,
@@ -70,20 +70,20 @@ sap.ui.define(
       oDateTimeUtils: DateTimeUtils,
       oNumberFormatter: NumberFormatter,
       oPrintingLabelDialog: PrintingLabelDialog,
-      setController: function(sController) {
+      setController: function (sController) {
         this.oController = sController;
       },
 
-      setSelectedOrderData: function(oData) {
+      setSelectedOrderData: function (oData) {
         this.selectedOrderData = oData;
         this.getShopOrderData(oData.order);
       },
 
-      setSelectedLineItemData: function(oData) {
+      setSelectedLineItemData: function (oData) {
         this.selectedLineItemData = oData;
       },
 
-      onInitGoodsReceiptDialog: function() {
+      onInitGoodsReceiptDialog: function () {
         if (!this.postData) {
           // Goods Receipt Post model
           this.postData = {
@@ -147,7 +147,7 @@ sap.ui.define(
         );
       },
 
-      concatenateQuantityAndUnitOfMeasure: function(sQty, sUom) {
+      concatenateQuantityAndUnitOfMeasure: function (sQty, sUom) {
         let sFormattedQty = NumberFormatter.dmcLocaleFloatNumberFormatter(sQty, sUom);
         if (sUom && sFormattedQty !== '') {
           return sFormattedQty + ' ' + sUom;
@@ -158,7 +158,7 @@ sap.ui.define(
         }
       },
 
-      formatCancellationStatus: function(sStatusKey) {
+      formatCancellationStatus: function (sStatusKey) {
         const sPostedKey = 'enum.status.posted';
         const sCanceledkey = 'enum.status.canceled';
         let oStatus = {
@@ -173,7 +173,7 @@ sap.ui.define(
         return Bundles.getGoodreceiptText(sKey);
       },
 
-      _updateSettingModel: function(bGrConfirmBtnEnable) {
+      _updateSettingModel: function (bGrConfirmBtnEnable) {
         let oSettingsModel = this.oController.getView().getModel('settingsModel');
         oSettingsModel.setProperty('/grConfirmBtnEnable', bGrConfirmBtnEnable);
       },
@@ -183,14 +183,14 @@ sap.ui.define(
       //       return;
       //     }
       //   },
-      _hasParkedOrBatchCorrectionItems: async function() {
+      _hasParkedOrBatchCorrectionItems: async function () {
         return this._getApprovedBatchCorrection().then(aItems => {
           this.batchCorrection = aItems;
           return aItems.length > 0;
         });
       },
 
-      _getApprovedBatchCorrection: function() {
+      _getApprovedBatchCorrection: function () {
         var sUrl =
           this.oController.getPublicApiRestDataSourceUri() +
           '/pe/api/v1/process/processDefinitions/start?key=REG_04527345-c48f-44c1-9424-5b65503c18ed&async=false';
@@ -201,7 +201,7 @@ sap.ui.define(
         };
         return new Promise((resolve, reject) => this.oController.ajaxPostRequest(sUrl, oParams, resolve, reject));
       },
-      _validateResourceStatus: function(sResource) {
+      _validateResourceStatus: function (sResource) {
         var aValidStatuses = ['PRODUCTIVE', 'ENABLED'];
         return this._getResourceData(sResource).then(aResource => {
           if (!aResource || aResource.length < 0) return false;
@@ -209,7 +209,7 @@ sap.ui.define(
         });
       },
 
-      _getResourceData: function(sResource) {
+      _getResourceData: function (sResource) {
         var sUrl = this.getPublicApiRestDataSourceUri() + '/resource/v2/resources';
         var oParamters = {
           plant: this.getPodController().getUserPlant(),
@@ -226,7 +226,7 @@ sap.ui.define(
          *      sfc
          *
          */
-      showGRPostingsDialogs: function(oData) {
+      showGRPostingsDialogs: function (oData) {
         this.oDialogBindingParameters = oData;
         this.oPageable = {
           size: 20,
@@ -240,7 +240,7 @@ sap.ui.define(
             name: 'Arun.ext.viewplugins.GoodsReceiptPluginGR1.view.fragment.GRPostingsDialog',
             controller: this.oController
           }).then(
-            function(oDialog) {
+            function (oDialog) {
               oView.addDependent(oDialog);
               oDialog.open();
               this.fetchGrPostDetails(this.oDialogBindingParameters);
@@ -252,7 +252,7 @@ sap.ui.define(
         }
       },
 
-      onFormulaCalculateIconPress: function(oEvent) {
+      onFormulaCalculateIconPress: function (oEvent) {
         let oSource = oEvent.getSource();
         let sPath = oSource.getParent().getParent().getParent().getBindingContextPath();
         let oCalculatedResult = oSource.getModel('postingsModel').getObject(sPath).calculatedData;
@@ -263,7 +263,7 @@ sap.ui.define(
       /***
          * Post Button pressed
          */
-      showGoodsReceiptDialog: function(oData, fnPostSuccesscallback) {
+      showGoodsReceiptDialog: function (oData, fnPostSuccesscallback) {
         this.oGrpController = this;
         this.plantTimeZoneId = oData.plantTimeZoneId;
         this._fnPostSuccesscallback = fnPostSuccesscallback;
@@ -279,6 +279,7 @@ sap.ui.define(
         let loggedInUser = oData.loggedInUser;
         let isBatchManaged = oData.isBatchManaged;
         let isEwmManagedStorageLocation = oData.isEwmManagedStorageLocation;
+        let HULabelType = oData.HULabelType;
 
         this.fetchMaterialUoms(selectedMaterial, selectedMaterialVersion);
 
@@ -301,6 +302,7 @@ sap.ui.define(
         oPostModel.setProperty('/componentType', oData.type);
         oPostModel.setProperty(sIsEwmManagedStorageLocationProperty, isEwmManagedStorageLocation);
         oPostModel.setProperty(sHandlingUnitNumberProperty, null); // if isEwmManagedStorageLocation is true, then show handlingUnitNumber field
+        oPostModel.setProperty("/HULabelType", HULabelType || "");
 
         if (!this.oController.byId('postDialog')) {
           Fragment.load({
@@ -308,7 +310,7 @@ sap.ui.define(
             name: 'Arun.ext.viewplugins.GoodsReceiptPluginGR1.view.fragment.GRPostDialog',
             controller: this.oController
           }).then(
-            function(oDialog) {
+            function (oDialog) {
               oView.addDependent(oDialog);
               this._createPostDialogCustomField();
               oDialog.open();
@@ -325,7 +327,7 @@ sap.ui.define(
         }, 1000);
       },
 
-      _getPPEndpointUrl: function(oConfig) {
+      _getPPEndpointUrl: function (oConfig) {
         let sUrl = null;
         if (oConfig.huPPTriggerEndPoint) {
           sUrl = oConfig.huPPTriggerEndPoint;
@@ -338,7 +340,7 @@ sap.ui.define(
         return sUrl;
       },
 
-      _getPPRequestParameters: function(sUrl) {
+      _getPPRequestParameters: function (sUrl) {
         let sSeparatorCharacter = '&';
         if (sUrl.indexOf('?') <= 0) {
           sSeparatorCharacter = '?';
@@ -348,11 +350,11 @@ sap.ui.define(
         return sParameters;
       },
 
-      _addPPParameter: function(sCurrentParameters, sSeparatorCharacter, sKey, sValue) {
+      _addPPParameter: function (sCurrentParameters, sSeparatorCharacter, sKey, sValue) {
         return sCurrentParameters + sSeparatorCharacter + sKey + '=' + sValue;
       },
 
-      onCreateHUClicked: function() {
+      onCreateHUClicked: function () {
         let oGrController = this.GRPostController || this;
         let oMainController = oGrController.oController;
         let oConfig = oMainController.getConfiguration();
@@ -365,7 +367,7 @@ sap.ui.define(
               icon: MessageBox.Icon.WARNING,
               title: Bundles.getGlobalText('warning'),
               actions: [Bundles.getGlobalText('common.create.btn'), MessageBox.Action.CANCEL],
-              onClose: function(oAction) {
+              onClose: function (oAction) {
                 if (oAction === Bundles.getGlobalText('common.create.btn')) {
                   sessionStorage.setItem('GR_PLUGIN_HU_GEN_PROMPT_REPEAT', true);
                   oGrController._generateHuFromPP();
@@ -380,7 +382,7 @@ sap.ui.define(
         }
       },
 
-      _generateHuFromPP: function() {
+      _generateHuFromPP: function () {
         const grController = this.GRPostController || this;
         const oView = this.oController.getView();
         let oConfig = this.oController.getConfiguration();
@@ -434,7 +436,7 @@ sap.ui.define(
         );
       },
 
-      dmcDateToUTCWithoutMillisecondFormat: function(date) {
+      dmcDateToUTCWithoutMillisecondFormat: function (date) {
         let result = '';
         const timezoneInternal = PlantSettings.getTimeZone();
         const sFormattedDate = moment(date).locale('en').format('yyyy-MM-DD HH:mm:ss');
@@ -443,7 +445,7 @@ sap.ui.define(
         return result;
       },
 
-      _generateHuFromNumbering: function() {
+      _generateHuFromNumbering: function () {
         const grController = this.GRPostController || this;
         const oMainController = grController.oController;
         const oView = oMainController.getView();
@@ -481,7 +483,7 @@ sap.ui.define(
         }
       },
 
-      _grDialogOpenCallBack: function(sType) {
+      _grDialogOpenCallBack: function (sType) {
         let oView = this.oController.getView();
         let oPostModel = oView.getModel('postModel');
         oPostModel.setProperty('/dateTime', this.getCurrentDateTimeInPlantTimeZone());
@@ -492,7 +494,7 @@ sap.ui.define(
         }
       },
 
-      _getProposeBatchNumber: function() {
+      _getProposeBatchNumber: function () {
         let grController = this.GRPostController || this;
         let mainController = grController.oController;
         let inventoryUrl = mainController.getInventoryDataSourceUri();
@@ -513,13 +515,13 @@ sap.ui.define(
         $.ajaxSettings.async = true;
       },
 
-      _getProposeBatchNumberSuccessCallback: function(oResponseData) {
+      _getProposeBatchNumberSuccessCallback: function (oResponseData) {
         let oView = this.oController.getView();
         let oPostModel = oView.getModel('postModel');
         oPostModel.setProperty(sBatchNumberProperty, oResponseData.batchNumber);
       },
 
-      _getProposeBatchNumberErrorCallback: function(oError, oHttpErrorMessage) {
+      _getProposeBatchNumberErrorCallback: function (oError, oHttpErrorMessage) {
         let err = oError || oHttpErrorMessage;
         let oView = this.oController.getView();
         let oPostModel = oView.getModel('postModel');
@@ -527,7 +529,7 @@ sap.ui.define(
         oPostModel.setProperty(sBatchNumberProperty, null);
       },
 
-      _createPostDialogCustomField: function() {
+      _createPostDialogCustomField: function () {
         if (this.oController.oPluginConfiguration && this.oController.oPluginConfiguration.customField1) {
           let grController = this.GRPostController || this; // if this is controller.js, get GRPostController, else . return this;
           let oPluginConfiguration = this.oController.oPluginConfiguration;
@@ -542,13 +544,13 @@ sap.ui.define(
         }
       },
 
-      getCurrentDateInPlantTimeZone: function() {
+      getCurrentDateInPlantTimeZone: function () {
         let dDate = new Date().toLocaleString('en-US', { timeZone: PlantSettings.getTimeZone() });
         let dStartToday = DateTimeUtils.dmcDateTimeStartOf(dDate, 'day');
         return moment(dStartToday).format('YYYY-MM-DD');
       },
 
-      getCurrentDateTimeInPlantTimeZone: function() {
+      getCurrentDateTimeInPlantTimeZone: function () {
         let dDate = new Date().toLocaleString('en-US', { timeZone: PlantSettings.getTimeZone() });
         let dDateTime = DateTimeUtils.dmcDateTimeStartOf(dDate);
         return moment(dDateTime).format('MMM DD,yyyy, hh:mm:ss a');
@@ -557,7 +559,7 @@ sap.ui.define(
       /***
          * Fetch Material Uoms
          */
-      fetchMaterialUoms: function(sMaterial, sVersion) {
+      fetchMaterialUoms: function (sMaterial, sVersion) {
         let sUrl = this.oController.getProductRestDataSourceUri() + 'materials/uoms';
         let oParameters = {};
         oParameters.material = sMaterial;
@@ -568,8 +570,8 @@ sap.ui.define(
         AjaxUtil.get(
           sUrl,
           oParameters,
-          function(oResponseData) {
-            let unitList = oResponseData.map(function(unit) {
+          function (oResponseData) {
+            let unitList = oResponseData.map(function (unit) {
               return {
                 value: unit.uom,
                 text: unit.shortText
@@ -577,7 +579,7 @@ sap.ui.define(
             });
             that.getView().setModel(new JSONModel(unitList), 'unitModel');
           },
-          function(oError, oHttpErrorMessage) {
+          function (oError, oHttpErrorMessage) {
             let err = oError || oHttpErrorMessage;
             that.showErrorMessage(err, true, true);
             that.getView().setModel(new JSONModel({}), 'unitModel');
@@ -590,17 +592,17 @@ sap.ui.define(
          * GET call to fetch ShopOrder data
          * @param sOrder
          */
-      getShopOrderData: function(sOrder) {
+      getShopOrderData: function (sOrder) {
         let sUrl = `${this.oController.getDemandRestDataSourceUri()}shopOrders/search/findByPlantAndShopOrder?plant=${PlantSettings.getCurrentPlant()}&shopOrder=${sOrder}`;
         let that = this.oController;
         AjaxUtil.get(
           sUrl,
           null,
-          function(oResponseData) {
+          function (oResponseData) {
             that.getView().setModel(new JSONModel(oResponseData), 'orderModel');
             this._enableDisableCalculation();
           }.bind(this),
-          function(oError, oHttpErrorMessage) {
+          function (oError, oHttpErrorMessage) {
             let err = oError || oHttpErrorMessage;
             that.showErrorMessage(err, true, true);
             that.getView().setModel(new JSONModel({}), 'orderModel');
@@ -611,7 +613,7 @@ sap.ui.define(
       /***
          * Confirm Button on Post Pop-up pressed
          */
-      onConfirmPostDialog: function() {
+      onConfirmPostDialog: function () {
         let grController = this.GRPostController || this; // if this is controller.js, get GRPostController, else . return this;
         let mainController = grController.oController; //
         grController._updateSettingModel(false);
@@ -655,7 +657,10 @@ sap.ui.define(
         };
         grController.postGrData(sUrl, oPayload);
 
-        var oScanModel = this.getView().getModel('scanModel'),
+      },
+
+      _processHandlingUnits: function (grController) {
+        var oScanModel = this.oController.getView().getModel('scanModel'),
           aScannedHUs = oScanModel.getProperty('/scanData');
 
         var aItems = aScannedHUs.map(oScannedItem => {
@@ -672,7 +677,7 @@ sap.ui.define(
         }
       },
 
-      _buildCustomFieldData: function() {
+      _buildCustomFieldData: function () {
         let aFiledData = [];
         if (this.oController.oPluginConfiguration && this.oController.oPluginConfiguration.customField1) {
           if (sap.ui.getCore().byId(POST_CUSTOM_FIELD_ID).getValue()) {
@@ -688,7 +693,7 @@ sap.ui.define(
       /***
          * Reset the input fields
          */
-      _resetFields: function() {
+      _resetFields: function () {
         let mainController = this.oController;
         mainController.byId('quantity').setValue('');
         mainController.byId('uom').setValue('');
@@ -713,7 +718,7 @@ sap.ui.define(
         this._clearFiledsErrorState();
       },
 
-      _clearFiledsErrorState: function(params) {
+      _clearFiledsErrorState: function (params) {
         let mainController = this.oController;
         ErrorHandler.clearErrorState(mainController.byId('quantity'));
         ErrorHandler.clearErrorState(mainController.byId('batchNumberFilter'));
@@ -726,17 +731,17 @@ sap.ui.define(
       /***
          * Validation for Quantity on change
          */
-      onQuantityChange: async function(oEvent) {
+      onQuantityChange: async function (oEvent) {
         // Handling Qty check for validation
         let that = this.GRPostController || this;
 
-        let oSetTimeOut = setTimeout(function() {
+        let oSetTimeOut = setTimeout(function () {
           that.handleValideQuantity();
           clearTimeout(oSetTimeOut);
         }, 500);
       },
 
-      handleHUScanChange: async function(oEvent) {
+      handleHUScanChange: async function (oEvent) {
         // Handling Qty check for validation
         let that = this.GRPostController || this;
 
@@ -843,7 +848,7 @@ sap.ui.define(
         this.getView().byId('quantity').setValue(Number(scanData.scanQty));
         this.getView().getModel('scanModel').setData(scanData);
 
-        let oSetTimeOut = setTimeout(function() {
+        let oSetTimeOut = setTimeout(function () {
           that.handleValideQuantity();
           clearTimeout(oSetTimeOut);
         }, 500);
@@ -853,7 +858,7 @@ sap.ui.define(
         }, 1000);
       },
 
-      _postHandlingUnitGoodsReceipt: function(aItems) {
+      _postHandlingUnitGoodsReceipt: function (aItems) {
         //CP_HandlingUnitQuantityGrPost
         var sUrl =
           this.oController.getPublicApiRestDataSourceUri() +
@@ -864,7 +869,7 @@ sap.ui.define(
         return new Promise((resolve, reject) => this.oController.ajaxPostRequest(sUrl, oPayload, resolve, reject));
       },
 
-      _getHandlingUnitDataFromS4: function(sHuNo) {
+      _getHandlingUnitDataFromS4: function (sHuNo) {
         //CPP_GetPackingDataFromS4
         var sUrl =
           this.oController.getPublicApiRestDataSourceUri() +
@@ -875,7 +880,7 @@ sap.ui.define(
         return new Promise((resolve, reject) => this.oController.ajaxPostRequest(sUrl, oPayload, resolve, reject));
       },
 
-      onQuantityLiveChange: function(oEvent) {
+      onQuantityLiveChange: function (oEvent) {
         try {
           var sText = JSON.parse(oEvent.getSource().getValue().split('[')[1].split(']')[0]);
         } catch (e) {
@@ -964,7 +969,7 @@ sap.ui.define(
         this.getView().getModel('scanModel').setData(scanData);
       },
 
-      quantityConfirmation: async function(phase) {
+      quantityConfirmation: async function (phase) {
         //Quantity validation only in case of finished goods
         if (this.selectedLineItemData.type !== 'N') return;
 
@@ -983,7 +988,7 @@ sap.ui.define(
         this.oController.ajaxGetRequest(
           sUrl,
           oParameters,
-          function(oResponseData) {
+          function (oResponseData) {
             let oQuantityInpuCtrl = that.oController.byId('quantity');
             let sValue = parseInt(oQuantityInpuCtrl.getValue());
             // if (that.batchCorrection.content && that.batchCorrection.content.length > 0) {
@@ -1011,14 +1016,14 @@ sap.ui.define(
             oQuantityInpuCtrl.setValueState('None');
             return true;
           },
-          function(oError, oHttpErrorMessage) {
+          function (oError, oHttpErrorMessage) {
             var err = oError ? oError : oHttpErrorMessage;
             that.showErrorMessage(err, true, true);
           }
         );
       },
 
-      handleValideQuantity: async function() {
+      handleValideQuantity: async function () {
         let grController = this.GRPostController || this; // if this is controller.js, get GRPostController, else . return this;
         let oPostModel = grController.oController.getView().getModel('postModel');
         let oQuantityInpuCtrl = grController.oController.byId('quantity');
@@ -1086,7 +1091,7 @@ sap.ui.define(
         }
       },
 
-      onPostingDateChange: function(oEvent) {
+      onPostingDateChange: function (oEvent) {
         let grController = this.GRPostController || this; // if this is controller.js, get GRPostController, else . return this;
         let postingDate = oEvent.getSource().getValue();
         grController._validatePostingDateTime(postingDate);
@@ -1122,7 +1127,7 @@ sap.ui.define(
       /***
          * Validation for Batch Number on live change
          */
-      onBatchNumberLiveChange: function() {
+      onBatchNumberLiveChange: function () {
         let oView = this.oController.getView();
         this.isBatchNumberValid = false;
 
@@ -1141,7 +1146,7 @@ sap.ui.define(
       /***
          * Validation for Handling Unit Number on live change
          */
-      onHandlingUnitNumberLiveChange: function() {
+      onHandlingUnitNumberLiveChange: function () {
         let grController = this.GRPostController || this; // if this is controller.js, get GRPostController, else . return this;
         let mainController = grController.oController;
         let oView = mainController.getView();
@@ -1162,7 +1167,7 @@ sap.ui.define(
       /***
          * Validation for custom field on live change
          */
-      onCustomFieldLiveChange: function(oEvent) {
+      onCustomFieldLiveChange: function (oEvent) {
         let grController = this.GRPostController || this; // if this is controller.js, get GRPostController, else . return this;
         let mainController = grController.oController;
         let oView = mainController.getView();
@@ -1183,14 +1188,14 @@ sap.ui.define(
       /***
          * BatchNumber Validation to NOT allow '/', '*', '&', space
          */
-      _validateBatchNumber: function(sInputValue, sElementName) {
+      _validateBatchNumber: function (sInputValue, sElementName) {
         return this._validateInputValue(sInputValue, sElementName, /^[^/&* ]+$/);
       },
 
       /***
          * handlingUnitNumber Validation to NOT allow space and max length 20
          */
-      _validateHandlingUnitNumber: function(sInputValue, sElementName) {
+      _validateHandlingUnitNumber: function (sInputValue, sElementName) {
         return (
           this._validateInputValue(sInputValue, sElementName, /^[^ ]+$/) &&
           this._validateInputValue(sInputValue, sElementName, /^.{0,20}$/, Bundles.getGoodreceiptText('INVALID_HU_INPUT'))
@@ -1200,11 +1205,11 @@ sap.ui.define(
       /***
          * CustomField Validation to allow alpha numeric, '@', '.' characteion to allow alpha numeric, '@', '.' characters
          */
-      _validateCustomField: function(sInputValue, sElementName) {
+      _validateCustomField: function (sInputValue, sElementName) {
         return this._validateInputValue(sInputValue, sElementName, /^[A-Za-z0-9@. ]+$/);
       },
 
-      _validateInputValue: function(sInputValue, sElementName, sRegex, sMsg) {
+      _validateInputValue: function (sInputValue, sElementName, sRegex, sMsg) {
         // Regex for Valid Characters
         let isValidInput = true;
 
@@ -1223,7 +1228,7 @@ sap.ui.define(
       /***
          * Validation to enable Confirm Button on Post Pop-up
          */
-      _enableConfirmButton: function() {
+      _enableConfirmButton: function () {
         let bIsBachManaged = this.oController.getView().getModel('postModel').getProperty('/batchManaged');
         // if is batchManaged, then required isBatchNumberValid is true
         // if is not batchManaged, then not required batchNumberValid
@@ -1244,15 +1249,17 @@ sap.ui.define(
       /***
          * Post GR data
          */
-      postGrData: function(sUrl, oRequestData) {
+      postGrData: function (sUrl, oRequestData) {
         this.sLatestPostedBatchNumber = oRequestData.batchNumber;
         AjaxUtil.post(sUrl, oRequestData, this._postGrDataSucessCallback.bind(this), this._postGrDataErrorCallback.bind(this));
       },
 
-      _postGrDataSucessCallback: function(oResponseData) {
+      _postGrDataSucessCallback: function (oResponseData) {
         let grController = this.GRPostController || this;
         grController._updateSettingModel(true);
         this.oController.getView().getModel('settingsModel').refresh();
+
+        grController._processHandlingUnits(grController);
 
         let oReponseItemData = null;
         if (oResponseData && oResponseData.lineItems.length > 0) {
@@ -1276,7 +1283,7 @@ sap.ui.define(
         grController.onClosePostDialog();
       },
 
-      _postGrDataErrorCallback: function(oError, oHttpErrorMessage) {
+      _postGrDataErrorCallback: function (oError, oHttpErrorMessage) {
         let grController = this.GRPostController || this;
 
         let mainController = this.oController;
@@ -1289,7 +1296,7 @@ sap.ui.define(
             icon: MessageBox.Icon.WARNING,
             title: Bundles.getGlobalText('warning'),
             actions: [MessageBox.Action.YES, MessageBox.Action.NO],
-            onClose: function(oAction) {
+            onClose: function (oAction) {
               if (oAction === 'YES') {
                 mainController.byId('postDialog').setBusy(true);
                 mainController.getView().getModel('postModel').setProperty(sQuantityToleranceCheckProperty, false);
@@ -1316,7 +1323,7 @@ sap.ui.define(
       /***
          * Close Button on Post Pop-up pressed
          */
-      onClosePostDialog: function() {
+      onClosePostDialog: function () {
         // Reset the fields
         let grController = this.GRPostController || this; // if this is controller.js, get GRPostController, else . return this;
         let mainController = grController.oController; //
@@ -1325,7 +1332,7 @@ sap.ui.define(
         grController._resetFields();
       },
 
-      handleValueHelp: function(oEvent) {
+      handleValueHelp: function (oEvent) {
         let grController = this.GRPostController || this; // if this is controller.js, get GRPostController, else . return this;
         let mainController = grController.oController; //
         grController.oBatchControl.setController(mainController);
@@ -1348,7 +1355,7 @@ sap.ui.define(
           StorageLocationBrowse.open(
             mainController.getView(),
             sl,
-            function(oSelectedObject) {
+            function (oSelectedObject) {
               if (oSelectedObject) {
                 storageLocationFilter.setValue(oSelectedObject.name);
                 oPostingsModel.setProperty(sIsEwmManagedStorageLocationProperty, oSelectedObject.isEwmManagedStorageLocation);
@@ -1364,7 +1371,7 @@ sap.ui.define(
         }
       },
 
-      handleBatchValueHelp: function(sMaterial, sPlant) {
+      handleBatchValueHelp: function (sMaterial, sPlant) {
         let grController = this.GRPostController || this;
         let mainController = grController.oController;
         let sBatchNumber = '';
@@ -1376,7 +1383,7 @@ sap.ui.define(
           sMaterial,
           sPlant,
           sBatchNumber,
-          function() {
+          function () {
             this.onBatchNumberLiveChange();
           }.bind(grController)
         );
@@ -1385,7 +1392,7 @@ sap.ui.define(
       /***
          * Prepare the data to make GET call to fetch GR Details
          */
-      fetchGrPostDetails: function(oData) {
+      fetchGrPostDetails: function (oData) {
         let that = this.oController;
         let inventoryUrl = that.getInventoryDataSourceUri();
         let oParameters = {};
@@ -1404,14 +1411,14 @@ sap.ui.define(
       /***
          * Fetch GR Details data
          */
-      _getGrPostings: function(sUrl, oParameters) {
+      _getGrPostings: function (sUrl, oParameters) {
         let mainController = this.oController;
         let that = this;
         mainController.byId('postingsTable').setBusy(true);
         AjaxUtil.get(
           sUrl,
           oParameters,
-          function(oResponseData) {
+          function (oResponseData) {
             that.postingsList = oResponseData;
             that.postingsList.dontShowPrint = oParameters.dontShowPrint;
             let oTableModel = mainController.byId('postingsTable').getModel('postingsModel');
@@ -1432,7 +1439,7 @@ sap.ui.define(
             that.oPostingsModel.setData(mainController.byId('postingsTable').getModel('postingsModel').getData());
             mainController.byId('postingsTable').setBusy(false);
           },
-          function(oError, sHttpErrorMessage) {
+          function (oError, sHttpErrorMessage) {
             let err = oError ? oError.error.message : sHttpErrorMessage;
             mainController.showErrorMessage(err, true, true);
             that.postingsList = {};
@@ -1441,7 +1448,7 @@ sap.ui.define(
         );
       },
 
-      _updateGRPostingTableModel: function(oTableModel, oPostingsList) {
+      _updateGRPostingTableModel: function (oTableModel, oPostingsList) {
         oTableModel.totalPages = oPostingsList.details.totalPages;
         if (oPostingsList && oPostingsList.details && oPostingsList.details.content && oPostingsList.details.content.length > 0) {
           let aPostingsList = oPostingsList.details.content;
@@ -1460,9 +1467,9 @@ sap.ui.define(
         return oTableModel;
       },
 
-      _updateGRPostingsTableGrowing: function(nTotalPages) {
+      _updateGRPostingsTableGrowing: function (nTotalPages) {
         let oPostingListTable = this.oController.byId('postingsTable');
-        oPostingListTable.getBindingInfo('items').binding.isLengthFinal = function() {
+        oPostingListTable.getBindingInfo('items').binding.isLengthFinal = function () {
           return false;
         };
         let nextPage = this.oPageable.page + 1;
@@ -1476,23 +1483,23 @@ sap.ui.define(
           oPostingListTable.setGrowing(false);
           oPostingListTable.setGrowingScrollToLoad(false);
           this.oPageable.bCanContinueLoadingNextPage = false;
-          oPostingListTable.getBindingInfo('items').binding.isLengthFinal = function() {
+          oPostingListTable.getBindingInfo('items').binding.isLengthFinal = function () {
             return true;
           };
         }
       },
 
-      _buidPostingCustomFieldColumns: function(aPostingsListData) {
+      _buidPostingCustomFieldColumns: function (aPostingsListData) {
         let mainController = this.oController;
         let oTable = mainController.byId('postingsTable');
         let oListItem = mainController.byId('postingsTableListItem');
         let oHeaderColumnData = {};
         let that = this;
 
-        aPostingsListData.forEach(function(oRowdata) {
+        aPostingsListData.forEach(function (oRowdata) {
           if (that.oController.oPluginConfiguration && that.oController.oPluginConfiguration.customField1 && oRowdata.customFieldData) {
             let aCustomeDataFields = JSON.parse(oRowdata.customFieldData);
-            aCustomeDataFields.forEach(function(oDataField) {
+            aCustomeDataFields.forEach(function (oDataField) {
               if (!oHeaderColumnData[oDataField.id]) {
                 oHeaderColumnData[oDataField.id] = that._getPluginConfigurationText(oDataField.id);
               }
@@ -1502,7 +1509,7 @@ sap.ui.define(
         });
 
         let aHeaderKeys = Object.keys(oHeaderColumnData).sort();
-        aHeaderKeys.forEach(function(sHeaderKey, index) {
+        aHeaderKeys.forEach(function (sHeaderKey, index) {
           let oColumn = new sap.m.Column({
             styleClass: POSTING_CUMSTOM_FIELD,
             header: new sap.m.Text({
@@ -1531,7 +1538,7 @@ sap.ui.define(
         });
       },
 
-      queryNextPageList: function(oEvent) {
+      queryNextPageList: function (oEvent) {
         let that = this.GRPostController || this;
         let oTableModel = that.oController.byId('postingsTable').getModel('postingsModel');
         if (oEvent.getParameters().reason === 'Growing' && that.oPageable.bCanContinueLoadingNextPage && oTableModel.totalPages) {
@@ -1543,7 +1550,7 @@ sap.ui.define(
         }
       },
 
-      _getPluginConfigurationText: function(sCustomFieldKey) {
+      _getPluginConfigurationText: function (sCustomFieldKey) {
         return this.oController.oPluginConfiguration && this.oController.oPluginConfiguration[sCustomFieldKey];
       },
 
@@ -1551,7 +1558,7 @@ sap.ui.define(
          * Enable/Disable Calculate button
          * @private
          */
-      _enableDisableCalculation: function() {
+      _enableDisableCalculation: function () {
         if (this.oController.getView().getModel('postModel')) {
           let sBomRef = this.oController.getView().getModel('orderModel').getProperty('/actualBom').ref;
           const sBomId = sBomRef;
@@ -1564,7 +1571,7 @@ sap.ui.define(
         }
       },
 
-      _enableCalculation: function(oResponseData) {
+      _enableCalculation: function (oResponseData) {
         let oModel = this.oController.getView().getModel('postModel');
         if (oResponseData && oResponseData.dataType && oResponseData.dataType.dataFieldList) {
           let oFormula = this._getFormulaForCalculation(oResponseData);
@@ -1578,14 +1585,14 @@ sap.ui.define(
         }
       },
 
-      _disableCalculation: function(oError, oHttpErrorMessage) {
+      _disableCalculation: function (oError, oHttpErrorMessage) {
         let oModel = this.oController.getView().getModel('postModel');
         oModel.setProperty(sFormulaProperty, null);
         oModel.setProperty(sRecalculationEnabledProperty, false);
         this.oController.showErrorMessage(oError || oHttpErrorMessage, true, true);
       },
 
-      onFormulaCalculate: function(oEvent) {
+      onFormulaCalculate: function (oEvent) {
         let oGrpController = this.GRPostController || this;
         let oView = this.getView();
         let oData = oView.getModel('postModel').getData();
@@ -1594,7 +1601,7 @@ sap.ui.define(
         FormulaCalculateDialog.open(oView, oFormula, oGrpController._calculateFormulaCallBack.bind(oGrpController));
       },
 
-      _calculateFormulaCallBack: function(oResult) {
+      _calculateFormulaCallBack: function (oResult) {
         let oModel = this.oController.getView().getModel('postModel');
         oModel.setProperty('/quantity/value', oResult.result.toString());
         oModel.setProperty('/calculatedData', oResult);
@@ -1606,14 +1613,14 @@ sap.ui.define(
          * @param {oResponseData} Response of Bom Component ODATA request
          * @private
          */
-      _getFormulaForCalculation: function(oResponseData) {
+      _getFormulaForCalculation: function (oResponseData) {
         let oFormula = {
           formula: null,
           enableFormula: false
         };
 
         let aDataFieldList = oResponseData.dataType.dataFieldList;
-        let aFormulaDataFields = aDataFieldList.filter(function(oItem) {
+        let aFormulaDataFields = aDataFieldList.filter(function (oItem) {
           if (oItem.dataField.type === 'FORMULA') {
             return oItem.dataField;
           }
@@ -1626,21 +1633,21 @@ sap.ui.define(
         return oFormula;
       },
 
-      _getFromFormulaDataFieldsArray: function(aFormulaDataFields) {
+      _getFromFormulaDataFieldsArray: function (aFormulaDataFields) {
         let aFormulas = [];
         let oFormula = {
           formula: null,
           enableFormula: false
         };
 
-        aFormulaDataFields.forEach(function(oItem) {
+        aFormulaDataFields.forEach(function (oItem) {
           if (oItem.dataField.formula) {
             aFormulas.push(oItem.dataField.formula);
           }
         });
 
         if (aFormulas && aFormulas.length > 0) {
-          aFormulas.sort(function(x, y) {
+          aFormulas.sort(function (x, y) {
             let a = x.formulaName.toUpperCase();
             let b = y.formulaName.toUpperCase();
             return a === b ? 0 : a > b ? 1 : -1;
@@ -1660,11 +1667,11 @@ sap.ui.define(
          * Close Button on Postings Pop-up pressed
          * this here is the app controller
          */
-      onClosePostingsDialog: function() {
+      onClosePostingsDialog: function () {
         let oTable = this.getView().byId('postingsTable');
         let oColumnListItem = this.getView().byId('postingsTableListItem');
 
-        oTable.getColumns().forEach(function(oColumn, nIndex) {
+        oTable.getColumns().forEach(function (oColumn, nIndex) {
           if (oColumn.getStyleClass().indexOf(POSTING_CUMSTOM_FIELD) > -1) {
             oColumnListItem.removeCell(nIndex);
             oTable.removeColumn(oColumn);
@@ -1682,7 +1689,7 @@ sap.ui.define(
         this.getView().byId('postingsDialog').close();
       },
 
-      onDeleteLastScannedUnit: function() {
+      onDeleteLastScannedUnit: function () {
         let postModelData = this.getView().getModel('postModel').getData();
         let scanModelData = this.getView().getModel('scanModel').getData();
 
@@ -1728,7 +1735,7 @@ sap.ui.define(
          * opens the print label dialog
          * @param {object} oEvent
          */
-      onPrintBtnPressed: function(oEvent) {
+      onPrintBtnPressed: function (oEvent) {
         let oGrController = this.GRPostController || this;
         let oMainController = oGrController.oController;
         let oView = oMainController.getView();
@@ -1743,7 +1750,7 @@ sap.ui.define(
         );
       },
 
-      onExit: function() {
+      onExit: function () {
         let grController = this.GRPostController || this; // if this is controller.js, get GRPostController, else . return this;
         let mainController = grController.oController; //
 
@@ -1752,51 +1759,105 @@ sap.ui.define(
         }
       },
 
-      _printFinalHeaderLabel: function(sHandlingUnit, sOrder, sSfc) {
-        //GR_LABEL_FINAL_HEADER
-        var sUrl =
-          this.oController.getPublicApiRestDataSourceUri() +
-          '/pe/api/v1/process/processDefinitions/start?key=REG_c8e7223f-aea8-47e1-99c9-f72bd23ded44';
+      _printFinalHeaderLabel: function (sHandlingUnit, sOrder, sSfc) {
+        var HULabelType = this.oController.getView().getModel("postModel").getProperty("/HULabelType"), sUrl, oPayload, grController = this.GRPostController || this;
+
+        switch (HULabelType) {
+          // Header label URLs
+          case "Small": 
+            sUrl = this.oController.getPublicApiRestDataSourceUri() + '/pe/api/v1/process/processDefinitions/start?key=REG_c4646caf-8fa5-44f6-b018-d3a7d39af44b'; 
+            oPayload = {
+              plant: this.oController.getPodController().getUserPlant(),
+              handlingUnit: sHandlingUnit,
+              order: sOrder,
+              material: grController.postData.material
+            };
+            break;
+            
+          case "Medium": 
+            sUrl = this.oController.getPublicApiRestDataSourceUri() + '/pe/api/v1/process/processDefinitions/start?key=REG_c8e7223f-aea8-47e1-99c9-f72bd23ded44';
+            oPayload = {
+              plant: this.oController.getPodController().getUserPlant(),
+              handlingUnit: sHandlingUnit,
+              order: sOrder,
+              sfc: sSfc,
+              material: grController.postData.material
+            };
+            break;
+
+          case "Large": 
+            sUrl = this.oController.getPublicApiRestDataSourceUri() + '/pe/api/v1/process/processDefinitions/start?key=REG_66f3cabc-aeac-4d4b-942b-88c31df7411f'; 
+            oPayload = {
+              plant: this.oController.getPodController().getUserPlant(),
+              handlingUnit: sHandlingUnit,
+              order: sOrder,
+              WC: grController.postData.workCenter,
+              material: grController.postData.material
+            };
+            break;
+
+          default: sUrl =
+            this.oController.getPublicApiRestDataSourceUri() +
+            '/pe/api/v1/process/processDefinitions/start?key=REG_c8e7223f-aea8-47e1-99c9-f72bd23ded44';
+            oPayload = {
+              plant: this.oController.getPodController().getUserPlant(),
+              handlingUnit: sHandlingUnit,
+              order: sOrder,
+              sfc: sSfc,
+              material: grController.postData.material
+            };
+        }
+
+        this.oController.ajaxPostRequest(
+          sUrl,
+          oPayload,
+          function (oResponse) {
+            console.log('Label print triggered');
+          },
+          function (oError) { }
+        );
+      },
+
+      _printFinalByProductLabel: function (sHandlingUnit, sOrder, sWorkcenter) {
+        var HULabelType = this.oController.getView().getModel("postModel").getProperty("/HULabelType"), sUrl, oPayload, grController = this.GRPostController || this;
+
+        switch (HULabelType) {
+          // By Prod Label URLs
+          case "Small": 
+            sUrl = this.oController.getPublicApiRestDataSourceUri() + '/pe/api/v1/process/processDefinitions/start?key=REG_851837dd-8525-4025-a5a5-8c8e11d8fdb7';
+            break;
+          case "Medium": 
+            sUrl = this.oController.getPublicApiRestDataSourceUri() + '/pe/api/v1/process/processDefinitions/start?key=REG_e5d5273b-a2fb-4c16-a92d-709fd3f85f7e';
+            break;
+          case "Large": 
+            sUrl = this.oController.getPublicApiRestDataSourceUri() + '/pe/api/v1/process/processDefinitions/start?key=REG_6b32a607-33f1-42e8-95a2-77bc068e5fed';
+            break;
+
+          default: sUrl =
+            this.oController.getPublicApiRestDataSourceUri() +
+            '/pe/api/v1/process/processDefinitions/start?key=REG_e5d5273b-a2fb-4c16-a92d-709fd3f85f7e';
+        }
+
         var oPayload = {
           plant: this.oController.getPodController().getUserPlant(),
           handlingUnit: sHandlingUnit,
           order: sOrder,
-          sfc: sSfc
+          inwc: sWorkcenter,
+          material: grController.postData.material
         };
         this.oController.ajaxPostRequest(
           sUrl,
           oPayload,
-          function(oResponse) {
+          function (oResponse) {
             console.log('Label print triggered');
           },
-          function(oError) {}
+          function (oError) { }
         );
       },
 
-      _printFinalByProductLabel: function(sHandlingUnit, sOrder, sWorkcenter) {
-        //GR_LABEL_BYPRODUCT_FINAL
-        var sUrl =
-          this.oController.getPublicApiRestDataSourceUri() +
-          '/pe/api/v1/process/processDefinitions/start?key=REG_e5d5273b-a2fb-4c16-a92d-709fd3f85f7e';
-        var oPayload = {
-          plant: this.oController.getPodController().getUserPlant(),
-          handlingUnit: sHandlingUnit,
-          order: sOrder,
-          inwc: sWorkcenter
-        };
-        this.oController.ajaxPostRequest(
-          sUrl,
-          oPayload,
-          function(oResponse) {
-            console.log('Label print triggered');
-          },
-          function(oError) {}
-        );
-      },
-
-      _timeoutPromise: function(iMilliseconds = 1000) {
+      _timeoutPromise: function (iMilliseconds = 1000) {
         return new Promise(resolve => {
-          var oTimeout = setTimeout(function() {
+          var oTimeout = setTimeout(function () {
             clearTimeout(oTimeout);
             resolve();
           }, iMilliseconds);

@@ -52,6 +52,15 @@
                                 </suite:actual>
                             </suite:BulletMicroChart>
                             <FlexBox wrap="Wrap" alignItems="Center" justifyContent="Start">
+
+                                <!-- <Select id="idLabelType" items="{HULabelItems}" visible="{= ${HULabelItems}.length === 0 ? false : true }" selectedKey="{HULabelType}" enabled="true" class="sapUiTinyMarginEnd"> -->
+                                <Select id="idLabelType" selectedKey="{HULabelType}" enabled="true" class="sapUiTinyMarginEnd">
+                                    <core:Item key="Small" text="Small"/>
+                                    <core:Item key="Medium" text="Medium"/>
+                                    <core:Item key="Large" text="Large"/>
+                                    <!-- <core:Item key="{key}" text="{value}"/> -->
+                                </Select>
+
                                 <Button text="{i18n>POSTINGS_BUTTON.LABEL}" class="sapUiTinyMarginEnd"
                                     press="showComponentDetails" />
                                 <Button text="{i18n>POST_BUTTON.LABEL}"

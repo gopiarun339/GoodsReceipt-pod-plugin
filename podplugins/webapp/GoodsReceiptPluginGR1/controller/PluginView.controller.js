@@ -124,6 +124,7 @@ sap.ui.define(
         let selectedTargetQuantityValue = oEvent.getSource().getBindingContext().getObject().targetQuantity.value;
         let loggedInUser = this.getGlobalProperty('loggedInUserDetails') ? this.getGlobalProperty('loggedInUserDetails').userId : '';
         let type = oEvent.getSource().getBindingContext().getObject().type;
+        let HULabelType = oEvent.getSource().getBindingContext().getObject().HULabelType;
 
         this.GRPostController.setController(this);
         this.GRPostController.setSelectedOrderData(this.selectedOrderData);
@@ -143,6 +144,7 @@ sap.ui.define(
         oGRData.plantTimeZoneId = this.plantTimeZoneId;
         oGRData.isEwmManagedStorageLocation = isEwmManagedStorageLocation;
         oGRData.type = type;
+        oGRData.HULabelType = HULabelType;
 
         this.GRPostController.showGoodsReceiptDialog(
           oGRData,
@@ -192,13 +194,27 @@ sap.ui.define(
                 case 'N':
                   that.itemtList.lineItems[i].category = that.getI18nText('FINISHED_GOODS');
                   that.itemtList.lineItems[i].erpAutoGR = erpAutoGRStatus;
+                  that.itemtList.lineItems[i].HULabelItems = [
+                    { value: "Small", key: "Small" },
+                    { value: "Medium", key: "Medium" },
+                    { value: "Large", key: "Large" }
+                  ];
+                  that.itemtList.lineItems[i].HULabelType = "Small";
                   break;
                 case 'C':
                   that.itemtList.lineItems[i].category = that.getI18nText('CO_PRODUCTS');
                   that.itemtList.lineItems[i].erpAutoGR = erpAutoGRStatus;
+                  that.itemtList.lineItems[i].HULabelItems = [];
+                  that.itemtList.lineItems[i].HULabelType = "";
                   break;
                 case 'B':
                   that.itemtList.lineItems[i].category = that.getI18nText('BY_PRODUCTS');
+                  that.itemtList.lineItems[i].HULabelItems = [
+                    { value: "Small", key: "Small" },
+                    { value: "Medium", key: "Medium" },
+                    { value: "Large", key: "Large" }
+                  ];
+                  that.itemtList.lineItems[i].HULabelType = "Small";
                   break;
               }
               let isBatchManaged =
