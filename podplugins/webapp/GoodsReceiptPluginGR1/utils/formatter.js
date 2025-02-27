@@ -41,7 +41,7 @@ sap.ui.define([
           return NumberFormatter.dmcLocaleFloatNumberFormatter(sQty);
       },
 
-      formatPostButton: function (sType, bErpAutoGR, bBackflushing) {
+      formatPostButton: function (sType, bErpAutoGR, bBackflushing, bAuth) {
           let bEnabled = true;
           switch (sType) {
               case "N":
@@ -60,6 +60,11 @@ sap.ui.define([
                   }
                   break;
           }
+          
+          if( bAuth === false ){
+            bEnabled = false;
+          }
+
           return bEnabled;
       },
 

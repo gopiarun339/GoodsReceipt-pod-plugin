@@ -51,6 +51,7 @@ sap.ui.define(
         if (PluginViewController.prototype.onInit) {
           PluginViewController.prototype.onInit.apply(this, arguments);
         }
+        this.getView().setModel(new JSONModel(), 'slocList');
       },
 
       /**
@@ -87,10 +88,35 @@ sap.ui.define(
         this.batchCorrection = {
           content: []
         };
-        await this._getApprovedBatchCorrection().then(aItems => {
-          this.getGrMaterialData(oData);
-          this.batchCorrection = aItems;
-        });
+
+        await this._getApprovedBatchCorrection();
+
+        //Load details for lastPhase workcenter
+        var aRecipe = await this._getOrderRoutingData(oPodSelectionModel.getShopOrder()),
+          oLastPhase = aRecipe[0].phases.find(oItem => oItem.lastReportingPhase);
+
+        this.lastPhaseWorkCenter = {};
+        var oWorkCenterDetails = await this._getWorkCenterDetails(oLastPhase.workCenter);
+        this.lastPhaseWorkCenter = oWorkCenterDetails && oWorkCenterDetails.length ? oWorkCenterDetails[0] : {};
+
+        var bHasWorkCenterAuth = this.lastPhaseWorkCenter.userAssignments.find(
+          oUser => oUser.userId === this.getPodController().getUserId()
+        );
+        this.hasWorkCenterAuth = bHasWorkCenterAuth ? true : false;
+
+        this.storageLocs = [];
+        var oSlocCustomData = this.lastPhaseWorkCenter.customValues.find(oCustom => oCustom.attribute === 'STORAGE LOCATION');
+        if (oSlocCustomData && oSlocCustomData.value && oSlocCustomData.value.length > 0) {
+          var aPromises = oSlocCustomData.value.split(',').map(sSloc => this._getStorageLocationDetails(sSloc.trim()));
+          var aStorageLocations = await Promise.all(aPromises).catch(oError => {
+            console.error(oError);
+          });
+          this.storageLocs = aStorageLocations;
+          this.getView().getModel('slocList').setProperty('/StorageLocations', aStorageLocations);
+        }
+
+        this.getGrMaterialData(oData);
+        this.batchCorrection = aItems;
       },
 
       /***
@@ -190,31 +216,32 @@ sap.ui.define(
             // Add the category based on the type
             for (let i = 0; i < that.itemtList.lineItems.length; i++) {
               that.itemtList.lineItems[i].erpAutoGR = false;
+              that.itemtList.lineItems[i].isUserAuth = that.hasWorkCenterAuth;
               switch (that.itemtList.lineItems[i].type) {
                 case 'N':
                   that.itemtList.lineItems[i].category = that.getI18nText('FINISHED_GOODS');
                   that.itemtList.lineItems[i].erpAutoGR = erpAutoGRStatus;
                   that.itemtList.lineItems[i].HULabelItems = [
-                    { value: "Small", key: "Small" },
-                    { value: "Medium", key: "Medium" },
-                    { value: "Large", key: "Large" }
+                    { value: 'Small', key: 'Small' },
+                    { value: 'Medium', key: 'Medium' },
+                    { value: 'Large', key: 'Large' }
                   ];
-                  that.itemtList.lineItems[i].HULabelType = "Small";
+                  that.itemtList.lineItems[i].HULabelType = 'Small';
                   break;
                 case 'C':
                   that.itemtList.lineItems[i].category = that.getI18nText('CO_PRODUCTS');
                   that.itemtList.lineItems[i].erpAutoGR = erpAutoGRStatus;
                   that.itemtList.lineItems[i].HULabelItems = [];
-                  that.itemtList.lineItems[i].HULabelType = "";
+                  that.itemtList.lineItems[i].HULabelType = '';
                   break;
                 case 'B':
                   that.itemtList.lineItems[i].category = that.getI18nText('BY_PRODUCTS');
                   that.itemtList.lineItems[i].HULabelItems = [
-                    { value: "Small", key: "Small" },
-                    { value: "Medium", key: "Medium" },
-                    { value: "Large", key: "Large" }
+                    { value: 'Small', key: 'Small' },
+                    { value: 'Medium', key: 'Medium' },
+                    { value: 'Large', key: 'Large' }
                   ];
-                  that.itemtList.lineItems[i].HULabelType = "Small";
+                  that.itemtList.lineItems[i].HULabelType = 'Small';
                   break;
               }
               let isBatchManaged =
@@ -284,6 +311,39 @@ sap.ui.define(
           sfc: this.selectedOrderData.sfc
         };
         return new Promise((resolve, reject) => this.ajaxPostRequest(sUrl, oParams, resolve, reject));
+      },
+
+      _getWorkCenterDetails: function(sWorkCenter) {
+        var sUrl = this.getPublicApiRestDataSourceUri() + 'workcenter/v2/workcenters';
+        var oParams = {
+          plant: this.getPodController().getUserPlant(),
+          workCenter: sWorkCenter
+        };
+        return new Promise((resolve, reject) => this.ajaxGetRequest(sUrl, oParams, resolve, reject));
+      },
+
+      _getStorageLocationDetails: function(sStorageLoc) {
+        var sUrl = this.getPublicApiRestDataSourceUri() + 'inventory/v1/storageLocations';
+        var oParams = {
+          plant: this.getPodController().getUserPlant(),
+          storageLocation: sStorageLoc
+        };
+        return new Promise((resolve, reject) => this.ajaxGetRequest(sUrl, oParams, resolve, reject)).then(oResponse => {
+          if (oResponse && oResponse.content && oResponse.content.length) {
+            return oResponse.content[0];
+          }
+          return {};
+        });
+      },
+
+      _getOrderRoutingData: function(sRecipeId, sRecipeType = 'SHOP_ORDER') {
+        var sUrl = this.getPublicApiRestDataSourceUri() + '/recipe/v1/recipes';
+        var oParamters = {
+          plant: this.getPodController().getUserPlant(),
+          recipe: sRecipeId,
+          recipeType: sRecipeType
+        };
+        return new Promise((resolve, reject) => this.ajaxGetRequest(sUrl, oParamters, resolve, reject));
       }
     });
   }

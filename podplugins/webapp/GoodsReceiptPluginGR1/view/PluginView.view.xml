@@ -64,7 +64,7 @@
                                 <Button text="{i18n>POSTINGS_BUTTON.LABEL}" class="sapUiTinyMarginEnd"
                                     press="showComponentDetails" />
                                 <Button text="{i18n>POST_BUTTON.LABEL}"
-                                    enabled="{parts : ['type' ,'erpAutoGR', 'erpBackflushing'], formatter: '.oFormatter.formatPostButton'}"
+                                    enabled="{parts : ['type' ,'erpAutoGR', 'erpBackflushing', 'isUserAuth'], formatter: '.oFormatter.formatPostButton'}"
                                     type="Emphasized" class="sapMesGrPodPostButton" press="postGoodsReceiptDialog"
                                     ariaLabelledBy="postLabel" />
                                 <core:InvisibleText id="postLabel" text="{i18n>POST_BUTTON.LABEL}" />
