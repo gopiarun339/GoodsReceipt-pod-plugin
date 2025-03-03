@@ -55,9 +55,9 @@
 
                                 <!-- <Select id="idLabelType" items="{HULabelItems}" visible="{= ${HULabelItems}.length === 0 ? false : true }" selectedKey="{HULabelType}" enabled="true" class="sapUiTinyMarginEnd"> -->
                                 <Select id="idLabelType" selectedKey="{HULabelType}" enabled="true" class="sapUiTinyMarginEnd">
-                                    <core:Item key="Small" text="Small"/>
-                                    <core:Item key="Medium" text="Medium"/>
-                                    <core:Item key="Large" text="Large"/>
+                                    <core:Item key="Small" text="Small Label"/>
+                                    <core:Item key="Medium" text="Medium Label"/>
+                                    <core:Item key="Large" text="Loop Over Label"/>
                                     <!-- <core:Item key="{key}" text="{value}"/> -->
                                 </Select>
 

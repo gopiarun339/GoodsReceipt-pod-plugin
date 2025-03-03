@@ -741,7 +741,8 @@ sap.ui.define(
         }, 500);
       },
 
-      onStorageLocationChange:function(oEvent){
+      onStorageLocationChange: function(oEvent) {
+        this.isStorageLocationValid = oEvent.getSource().getValue() !== '';
         this._enableConfirmButton();
       },
 
@@ -1244,7 +1245,8 @@ sap.ui.define(
           this.isQuantityValid &&
           ((bIsEwmManaged && this.isHandlingUnitNumberValid) || !bIsEwmManaged) &&
           this.isCustomFieldValid &&
-          this.isPostingDateValid 
+          this.isPostingDateValid &&
+          this.isStorageLocationValid
         ) {
           this.oController.getView().byId('grConfirmBtn').setEnabled(true);
         }
@@ -1353,7 +1355,10 @@ sap.ui.define(
           let storageLocationFilter = mainController.byId('storageLocationFilter');
           let sl = '';
           if (storageLocationFilter) {
-            sl = storageLocationFilter.getValue();
+            // sl = storageLocationFilter.getValue();
+            storageLocationFilter.setValue('');
+            grController.isStorageLocationValid = false;
+            mainController.getView().byId('grConfirmBtn').setEnabled(false);
           }
           storageLocationFilter.getValue();
           StorageLocationBrowse.open(
@@ -1367,6 +1372,7 @@ sap.ui.define(
                   oPostingsModel.setProperty(sHandlingUnitNumberProperty, null);
                 }
                 mainController.getView().byId('grConfirmBtn').setEnabled(false);
+                grController.isStorageLocationValid = true;
                 grController._enableConfirmButton();
               }
             },

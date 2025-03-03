@@ -92,7 +92,8 @@ sap.ui.define(
         await this._getApprovedBatchCorrection();
 
         //Load details for lastPhase workcenter
-        var aRecipe = await this._getOrderRoutingData(oPodSelectionModel.getShopOrder()),
+        // var aRecipe = await this._getOrderRoutingData(oPodSelectionModel.getShopOrder()),
+        var aRecipe = await this._getOrderRoutingData(oPodSelectionModel.selectedOrderData.order),
           oLastPhase = aRecipe[0].phases.find(oItem => oItem.lastReportingPhase);
 
         this.lastPhaseWorkCenter = {};
