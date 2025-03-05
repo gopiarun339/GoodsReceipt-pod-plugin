@@ -1,0 +1,45 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:fb="sap.ui.comp.filterbar"
+    xmlns:l="sap.ui.layout">
+    <Dialog id="dialog" title="{i18n-goodreceipt>inventory.detail.storage.location.lbl}" afterClose="onClose"
+        contentHeight="2000px">
+        <subHeader>
+            <Bar>
+                <contentMiddle>
+                    <SearchField id="searchField" showSearchButton="true" liveChange="onSearchLiveChange"
+                        maxLength="200" />
+                </contentMiddle>
+            </Bar>
+        </subHeader>
+        <content>
+            <Table id="resultTable"
+                items="{ path: '/StorageLocations' }"
+                mode="SingleSelectMaster" updateFinished="onListUpdate" selectionChange="onSelect" growing="true"
+                growingThreshold="20" growingScrollToLoad="true">
+                <headerToolbar>
+                    <Toolbar>
+                        <core:Fragment fragmentName="sap.dm.dme.fragment.TableTitle" type="XML" />
+                    </Toolbar>
+                </headerToolbar>
+                <columns>
+                    <Column width="13em">
+                        <Text text="{i18n-goodreceipt>inventory.detail.storage.location.lbl}" />
+                    </Column>
+                    <Column width="13em">
+                        <Text text="Description" />
+                    </Column>
+                </columns>
+                <items>
+                    <ColumnListItem>
+                        <cells>
+                            <Text text="{storageLocation}" />
+                            <Text text="{description}" />
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </content>
+        <beginButton>
+            <Button id="closeButton" text="{i18n-global>cancel}" tooltip="{i18n-global>cancel}" press="onCancel" />
+        </beginButton>
+    </Dialog>
+</core:FragmentDefinition>

@@ -1,0 +1,78 @@
+<mvc:View xmlns:l="sap.ui.layout" xmlns:mvc="sap.ui.core.mvc" xmlns:core="sap.ui.core"  xmlns:suite="sap.suite.ui.microchart" xmlns="sap.m"
+    controllerName="Arun.ext.viewplugins.GoodsReceiptWhsePlugin.controller.PluginView" width="100%" height="100%">
+    <!-- <Page showHeader="false" showFooter="false" enableScrolling="true">
+        <content> -->
+         <Panel id="podModelPluginPanel" width="100%" height="100%" expandable="false" expanded="true"
+        accessibleRole="Region" backgroundDesign="Transparent">
+        <content>
+            <Table class="sapUiMediumMarginBegin sapUiMediumMarginEnd sapUiLargeMarginBottom" id="grList" width="auto"
+                autoPopinMode="true"
+                items="{ path: '/lineItems', sorter: { path: 'type', descending: true, group: true }, groupHeaderFactory: '.oFormatter.getGroupHeaderCustomFormatter' }">
+                <headerToolbar>
+                    <Toolbar>
+                        <Title id="titleText" text="{testTitle>/title}" level="H2" />
+                        <ToolbarSpacer />
+                    </Toolbar>
+                </headerToolbar>
+                <columns>
+                    <Column width="15em" hAlign="Left" vAlign="Middle" demandPopin="true">
+                        <Text text="{i18n>MATERIAL_NUMBER_COLUMN.LABEL}" />
+                    </Column>
+                    <Column width="12em" hAlign="Left" vAlign="Middle" demandPopin="true">
+                        <Text text="{i18n>DESCRIPTION_COLUMN.LABEL}" />
+                    </Column>
+                    <Column width="12em" hAlign="Left" vAlign="Middle" demandPopin="true">
+                        <Text text="{i18n>PLANNED_BATCH_ID_COLUMN.LABEL}" />
+                    </Column>
+                    <Column hAlign="Left" vAlign="Middle" demandPopin="true">
+                        <Text text="{i18n>STORAGE_LOCATION_COLUMN.LABEL}" />
+                    </Column>
+                    <Column hAlign="Left" vAlign="Middle" demandPopin="true">
+                        <Text text="{i18n>POSTED_QUANTITY_COLUMN.LABEL}" />
+                    </Column>
+                    <Column hAlign="Left" vAlign="Middle" demandPopin="true" />
+                </columns>
+                <items>
+                    <ColumnListItem vAlign="Middle">
+                        <cells>
+                            <Text class="boldText" text="{material}" />
+                        </cells>
+                        <cells>
+                            <Text text="{description}" />
+                            <Text text="{defaultBatchId}" />
+                            <Text text="{storageLocation}" />
+                            <suite:BulletMicroChart class="chartHeight" scale="{receivedQuantity/unitOfMeasure/uom}"
+                                size="Responsive" targetValue="{targetQuantity/value}"
+                                targetValueLabel="{parts: ['targetQuantity/value', 'i18n>target', 'receivedQuantity/unitOfMeasure/uom'], formatter: '.oFormatter.getRequiredQuantity'}"
+                                actualValueLabel="{parts: ['receivedQuantity/value', 'receivedQuantity/unitOfMeasure/uom'], formatter: '.oFormatter.formatNumber'} "
+                                showValueMarker="true" minValue="0">
+                                <suite:actual>
+                                    <suite:BulletMicroChartData value="{receivedQuantity/value}"
+                                        color="{parts: ['targetQuantity/value', 'receivedQuantity/value'], formatter: '.oFormatter.getScaleColor' }" />
+                                </suite:actual>
+                            </suite:BulletMicroChart>
+                            <FlexBox wrap="Wrap" alignItems="Center" justifyContent="Start">
+
+                                <!-- <Select id="idLabelType" items="{HULabelItems}" visible="{= ${HULabelItems}.length === 0 ? false : true }" selectedKey="{HULabelType}" enabled="true" class="sapUiTinyMarginEnd"> -->
+                                <Select id="idLabelType" selectedKey="{HULabelType}" enabled="true" class="sapUiTinyMarginEnd">
+                                    <core:Item key="Small" text="Small Label"/>
+                                    <core:Item key="Medium" text="Medium Label"/>
+                                    <core:Item key="Large" text="Loop Over Label"/>
+                                    <!-- <core:Item key="{key}" text="{value}"/> -->
+                                </Select>
+
+                                <Button text="{i18n>POSTINGS_BUTTON.LABEL}" class="sapUiTinyMarginEnd"
+                                    press="showComponentDetails" />
+                                <Button text="{i18n>POST_BUTTON.LABEL}"
+                                    enabled="{parts : ['type' ,'erpAutoGR', 'erpBackflushing', 'isUserAuth'], formatter: '.oFormatter.formatPostButton'}"
+                                    type="Emphasized" class="sapMesGrPodPostButton" press="postGoodsReceiptDialog"
+                                    ariaLabelledBy="postLabel" />
+                                <core:InvisibleText id="postLabel" text="{i18n>POST_BUTTON.LABEL}" />
+                            </FlexBox>
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+           </content>
+    </Panel>
+</mvc:View>

@@ -1,0 +1,85 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:f="sap.ui.layout.form" xmlns:l="sap.ui.layout" xmlns:ndc="sap.ndc">
+    <Dialog id="postDialog" title="{i18n-goodreceipt>POST_HEADER}" resizable="true" draggable="false" ariaLabelledBy="formTitle">
+        <f:SimpleForm id="postGoodsReceiptForm" editable="true" layout="ResponsiveGridLayout" labelSpanXL="2" labelSpanL="2" labelSpanM="3" labelSpanS="3" adjustLabelSpan="false" emptySpanXL="0" emptySpanL="0" emptySpanM="0" emptySpanS="0" columnsXL="1" columnsL="1" class="sapUiContentPadding" columnsM="1" singleContainerFullSize="true">
+            <f:content>
+                <core:InvisibleText id="formTitle" text="{i18n-goodreceipt>GOODS_RECEIPT_FORM}"/>
+                <Label text="{i18n-goodreceipt>MATERIAL_NUMBER_COLUMN.LABEL}" labelFor="materialNum"/>
+                <Input id="materialNum" enabled="false" value="{postModel>/material}"/>
+
+                <!-- Handling unit scan begin   -->
+                <Label text="{i18n>handlingUnitScanLabel}"/>
+                <Input id="idHandlingUnitScanInput"
+                    change=".GRPostController.handleHUScanChange"
+                    value="{weighingModel>/scannedHu}"
+                    required="false"
+                    class="fontWhite">
+                    <layoutData>
+                        <f:ColumnElementData cellsSmall="10" cellsLarge="6" />
+                    </layoutData>
+                </Input>
+                <!-- Handling unit scan end     -->
+
+                <Label id="qtyUomLabel" text="{i18n-goodreceipt>QUANTITY_UNIT_COLUMN.LABEL}" required="true"/>
+                <Input id="quantity" 
+                    ariaLabelledBy="qtyLabelDesc" 
+                    ariaDescribedBy="qtyLabelDesc" 
+                    editable="{= ${scanModel>/HUComponent}.length === 0 }"
+                    change=".GRPostController.onQuantityChange" 
+                    value="{path:'postModel>/quantity/value'}"/>
+
+                <!-- <Input id="quantity" ariaLabelledBy="qtyLabelDesc" ariaDescribedBy="qtyLabelDesc" liveChange=".GRPostController.onQuantityLiveChange" change=".GRPostController.onQuantityChange" value="{path:'postModel>/quantity/value'}"/> -->
+                <Select id="uom" ariaLabelledBy="qtyUomLabel" items="{unitModel>/}" selectedKey="{postModel>/quantity/unitOfMeasure/uom}" enabled="true">
+                    <layoutData>
+                        <l:GridData span="XL1 L1 M2 S3"/>
+                    </layoutData>
+                    <core:Item key="{unitModel>value}" text="{unitModel>value} - {unitModel>text}"/>
+                </Select>
+                <Button text="{i18n-goodreceipt>calculate}" press=".GRPostController.onFormulaCalculate" enabled="{postModel>/recalculationEnabled}">
+                    <layoutData>
+                        <l:GridData span="XL2 L2 M2 S3"/>
+                    </layoutData>
+                </Button>
+                <Label text="{i18n-goodreceipt>BATCH_NUMBER_COLUMN.LABEL}" labelFor="batchNumberFilter" required="{postModel>/batchManaged}"/>
+                <Input id="batchNumberFilter" value="{postModel>/batchNumber}" type="Text" showValueHelp="true" valueHelpOnly="true" valueHelpRequest=".GRPostController.handleValueHelp" enabled="{postModel>/batchManaged}"/>
+                <Label text="{i18n-goodreceipt>STORAGE_LOCATION_COLUMN.LABEL}" labelFor="storageLocationFilter" required="true"/>
+                <Input id="storageLocationFilter" 
+                    value="{postModel>/storageLocation}" 
+                    type="Text" 
+                    showValueHelp="true" 
+                    valueHelpOnly="true"
+                    change=".GRPostController.onStorageLocationChange" 
+                    valueHelpRequest=".GRPostController.handleValueHelp"/>
+                <Label text="{i18n-goodreceipt>HANDLING_UNIT_NUMBER.LABEL}" id="handlingUnitNumberLabel" visible="{= ${postModel>/isEwmManagedStorageLocation} === true}"/>
+                <Input id="handlingUnitNumber" ariaLabelledBy="handlingUnitNumberLabel" liveChange=".GRPostController.onHandlingUnitNumberLiveChange" value="{postModel>/handlingUnitNumber}" valueLiveUpdate="true" visible="{= ${postModel>/isEwmManagedStorageLocation} === true}" required="true"/>
+                <Button id="createHUBtn" text="{i18n-goodreceipt>CreateHU}" press=".GRPostController.onCreateHUClicked" enabled="true" visible="{= ${postModel>/isEwmManagedStorageLocation} === true}">
+                    <layoutData>
+                        <l:GridData span="XL2 L2 M2 S3"/>
+                    </layoutData>
+                </Button>
+                <Label text="{i18n-goodreceipt>POSTED_BY_COLUMN.LABEL}" labelFor="postedBy"/>
+                <Input id="postedBy" value="{postModel>/userId}" valueLiveUpdate="true" editable="false"/>
+                <Label text="{i18n-goodreceipt>POSTING_DATE_TIME_COLUMN.LABEL}" labelFor="postingDateTime" required="true"/>
+                <DateTimePicker id="postingDate" class="sapUiSmallMarginBottom" change=".GRPostController.onPostingDateChange" value="{ path: 'postModel>/dateTime' }" valueFormat="yyyy-MM-ddTHH:mm:ssZ"/>
+                <core:InvisibleText id="qtyLabelDesc" text="{i18n-goodreceipt>QUANTITY_COLUMN.LABEL}"/>
+                <Label text="{i18n-goodreceipt>COMMENTS_COLUMN_LABEL}" labelFor="inputCommentsForGR" width="100%"/>
+                <TextArea id="inputCommentsForGR" maxLength="4000" rows="3" width="100%" value="{postModel>/comments}"/>
+                <!-- <Label text="Scan GR" width="100%"/>
+                <Button id="barcodeScannerButton" icon="sap-icon://qr-code" press=".GRPostController.onScanSuccessPress" /> -->
+                <!-- <ndc:BarcodeScannerButton
+                    id="barcodeScannerButton"
+                    scanSuccess=".GRPostController.onScanSuccess"
+                    scanFail=".GRPostController.onScanError"
+                    inputLiveUpdate=".GRPostController.onScanLiveupdate"
+                    dialogTitle="GR Scanner"
+                /> -->
+                <Label text="Scanned Label" width="100%"/>
+                <TextArea id="ScannedData" rows="3" width="100%" value="{scanModel>/HUComponent}" editable="false"/>
+            </f:content>
+        </f:SimpleForm>
+        <buttons>
+            <Button id="grDeleteBtn" text="Delete Last Scan" type="Reject" press=".GRPostController.onDeleteLastScannedUnit" enabled="{= ${scanModel>/HUComponent}.length > 0}" />
+            <Button id="grConfirmBtn" text="{i18n-goodreceipt>confirm}" type="Emphasized" press=".GRPostController.onConfirmPostDialog" enabled="{= ${settingsModel>/grConfirmBtnEnable} === 'true'}"/>
+            <Button id="grCloseBtn" text="{i18n-goodreceipt>cancel}" press=".GRPostController.onClosePostDialog"/>
+        </buttons>
+    </Dialog>
+</core:FragmentDefinition>

@@ -1,0 +1,63 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+    <Dialog id="dialog" title="{i18n-goodreceipt>batchBrowseTitle}" afterClose="onClose" contentHeight="80vh">
+        <subHeader>
+            <Bar>
+                <contentMiddle>
+                    <SearchField id="GRSearchField" showSearchButton="true" liveChange="onSearchLiveChange"
+                        maxLength="200" />
+                </contentMiddle>
+            </Bar>
+        </subHeader>
+        <content>
+            <FlexBox class="sapUiTinyMarginLeft sapUiTinyMarginBegin">
+                <BusyIndicator visible="{= !${/doneLoading}}" class="sapUiTinyMarginTop sapUiTinyMarginBottom" />
+                <Text text="{/doneLoadingProgress}" visible="{= !${/doneLoading}}"
+                    class="sapUiTinyMarginTop sapUiTinyMarginBottom sapUiTinyMarginBegin" />
+            </FlexBox>
+            <Table id="grResultTable"
+                items="{ path : '/characteristicValues', sorter : { path : 'batchNumber', descending : false} }"
+                mode="SingleSelectMaster" updateFinished="onListUpdate" selectionChange="onSelect" growing="true"
+                growingThreshold="20" growingScrollToLoad="true" autoPopinMode="true">
+                <headerToolbar>
+                    <Toolbar>
+                        <Title
+                            text="{ parts: ['i18n-global>common.items.title', 'Batches>/listLength'], formatter: '.GRPostController.formatMessage' }"
+                            level="H3" />
+                        <ToolbarSpacer />
+                        <Button text="{i18n-goodreceipt>UpdateBatches}" press="refreshBatchPress"
+                            visible="{= ${/inventoryManagement}}" enabled="{= ${/doneLoading}}" />
+                    </Toolbar>
+                </headerToolbar>
+                <columns>
+                    <Column width="12rem">
+                        <Text text="{i18n-goodreceipt>gr.batchNumber.lbl}" />
+                    </Column>
+                    <!--       dynamic column is here      -->
+                    <Column minScreenWidth="Desktop" demandPopin="true" hAlign="Begin">
+                        <Text text="{i18n-goodreceipt>gr.productionDate.lbl}" class="help-id-productionDate" />
+                    </Column>
+                    <Column minScreenWidth="Desktop" demandPopin="true" hAlign="Begin">
+                        <Text text="{i18n-goodreceipt>gr.expiryDate.lbl}" />
+                    </Column>
+                    <!-- <Column minScreenWidth="Desktop" demandPopin="true" width="8rem" hAlign="Center">
+                        <Text text="{i18n-goodreceipt>gr.actionButton.lbl}" />
+                    </Column> -->
+                </columns>
+                <items>
+                    <ColumnListItem>
+                        <cells>
+                            <Text text="{batchNumber}" />
+                            <Text text="{productionDate}" />
+                            <Text text="{shelfLifeExpirationDate}" />
+                            <!-- <Button text="{i18n-goodreceipt>BATCH_BROWSE_UPDATE_BUTTON}" /> -->
+                        </cells>
+                    </ColumnListItem>
+                </items>
+            </Table>
+        </content>
+        <beginButton>
+            <Button id="batchCloseButton" text="{i18n-global>common.cancel.btn}" tooltip="{i18n-global>common.cancel.btn}"
+                press=".GRPostController.onCancel" />
+        </beginButton>
+    </Dialog>
+</core:FragmentDefinition>

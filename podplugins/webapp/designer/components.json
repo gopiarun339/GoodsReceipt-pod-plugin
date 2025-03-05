@@ -1,15 +1,24 @@
 {
-    "components" : [
-        {
-            "id": "GoodsReceiptPluginGR1",
-            "type": "VIEW_PLUGIN",
-            "allowMultipleInstances": false,
-            "name": "Arun.ext.viewplugins.GoodsReceiptPluginGR1",
-            "propertyEditor": "Arun.ext.viewplugins.GoodsReceiptPluginGR1.builder.PropertyEditor",
-            "i18n": "Arun.ext.viewplugins.GoodsReceiptPluginGR1.i18n.i18n",
-            "productionProcessEnabled": false,
-            "supportedPodTypes": ["WORK_CENTER","OPERATION", "ORDER", "OTHER", "MONITOR"]
-        }       
-       
-    ]
+  "components": [
+    {
+      "id": "GoodsReceiptPluginGR1",
+      "type": "VIEW_PLUGIN",
+      "allowMultipleInstances": false,
+      "name": "Arun.ext.viewplugins.GoodsReceiptPluginGR1",
+      "propertyEditor": "Arun.ext.viewplugins.GoodsReceiptPluginGR1.builder.PropertyEditor",
+      "i18n": "Arun.ext.viewplugins.GoodsReceiptPluginGR1.i18n.i18n",
+      "productionProcessEnabled": true,
+      "supportedPodTypes": ["WORK_CENTER", "OPERATION", "ORDER", "OTHER", "MONITOR"]
+    },
+    {
+      "id": "GoodsReceiptWhsePlugin",
+      "type": "VIEW_PLUGIN",
+      "allowMultipleInstances": false,
+      "name": "Arun.ext.viewplugins.GoodsReceiptWhsePlugin",
+      "propertyEditor": "Arun.ext.viewplugins.GoodsReceiptWhsePlugin.builder.PropertyEditor",
+      "i18n": "Arun.ext.viewplugins.GoodsReceiptWhsePlugin.i18n.i18n",
+      "productionProcessEnabled": true,
+      "supportedPodTypes": ["WORK_CENTER", "OPERATION", "ORDER", "OTHER", "MONITOR"]
+    }
+  ]
 }
